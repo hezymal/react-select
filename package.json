@@ -1,0 +1,26 @@
+{
+    "name": "select-input",
+    "version": "1.0.0",
+    "main": "dist/index.js",
+    "license": "MIT",
+    "scripts": {
+        "build": "rollup --config",
+        "watch:docs": "rollup --config docs.rollup.config.js --watch"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.18.10",
+        "@babel/preset-env": "^7.18.10",
+        "@rollup/plugin-babel": "^5.3.1",
+        "@rollup/plugin-typescript": "^8.3.4",
+        "@types/react": "^18.0.17",
+        "@types/react-dom": "^18.0.6",
+        "@web/rollup-plugin-html": "^1.11.0",
+        "react-dom": "^18.2.0",
+        "rollup": "^2.78.1",
+        "tslib": "^2.4.0",
+        "typescript": "^4.7.4"
+    },
+    "peerDependencies": {
+        "react": "^18.2.0"
+    }
+}

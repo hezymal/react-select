@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "target": "es2016",
+        "module": "esnext",
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "strict": true,
+        "skipLibCheck": true,
+        "outDir": "dist",
+        "declaration": true,
+        "declarationDir": "dist",
+        "jsx": "react"
+    },
+    "include": ["src"],
+    "exclude": ["dist", "docs", "node_modules"]
+}
