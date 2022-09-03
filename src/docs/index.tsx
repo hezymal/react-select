@@ -5,5 +5,9 @@ import "./configureFontAwesome";
 import { App } from "./App";
 
 const rootElement = document.getElementById("root");
-const root = createRoot(rootElement!);
+if (!rootElement) {
+    throw new Error("Element with id = 'root' not found");
+}
+
+const root = createRoot(rootElement);
 root.render(<App />);

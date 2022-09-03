@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { HashRouter, Route, Routes } from "react-router-dom";
 
 import { Layout } from "./components/Layout";
 import { Language, TranslationContext } from "./i18n";
@@ -13,7 +13,7 @@ export const App: React.FC = () => {
     const [language, setLanguage] = useState(Language.ru);
 
     return (
-        <BrowserRouter basename="/react-select">
+        <HashRouter>
             <TranslationContext.Provider value={language}>
                 <GlobalStyle />
                 <Routes>
@@ -36,6 +36,6 @@ export const App: React.FC = () => {
                     </Route>
                 </Routes>
             </TranslationContext.Provider>
-        </BrowserRouter>
+        </HashRouter>
     );
 };

@@ -11669,30 +11669,37 @@
 	}
 
 	var BeforeUnloadEventType = 'beforeunload';
+	var HashChangeEventType = 'hashchange';
 	var PopStateEventType = 'popstate';
 	/**
-	 * Browser history stores the location in regular URLs. This is the standard for
-	 * most web apps, but it requires some configuration on the server to ensure you
-	 * serve the same app at multiple URLs.
+	 * Hash history stores the location in window.location.hash. This makes it ideal
+	 * for situations where you don't want to send the location to the server for
+	 * some reason, either because you do cannot configure it or the URL space is
+	 * reserved for something else.
 	 *
-	 * @see https://github.com/remix-run/history/tree/main/docs/api-reference.md#createbrowserhistory
+	 * @see https://github.com/remix-run/history/tree/main/docs/api-reference.md#createhashhistory
 	 */
 
-	function createBrowserHistory(options) {
+
+	function createHashHistory(options) {
 	  if (options === void 0) {
 	    options = {};
 	  }
 
-	  var _options = options,
-	      _options$window = _options.window,
-	      window = _options$window === void 0 ? document.defaultView : _options$window;
+	  var _options2 = options,
+	      _options2$window = _options2.window,
+	      window = _options2$window === void 0 ? document.defaultView : _options2$window;
 	  var globalHistory = window.history;
 
 	  function getIndexAndLocation() {
-	    var _window$location = window.location,
-	        pathname = _window$location.pathname,
-	        search = _window$location.search,
-	        hash = _window$location.hash;
+	    var _parsePath = parsePath(window.location.hash.substr(1)),
+	        _parsePath$pathname = _parsePath.pathname,
+	        pathname = _parsePath$pathname === void 0 ? '/' : _parsePath$pathname,
+	        _parsePath$search = _parsePath.search,
+	        search = _parsePath$search === void 0 ? '' : _parsePath$search,
+	        _parsePath$hash = _parsePath.hash,
+	        hash = _parsePath$hash === void 0 ? '' : _parsePath$hash;
+
 	    var state = globalHistory.state || {};
 	    return [state.idx, readOnly({
 	      pathname: pathname,
@@ -11712,9 +11719,9 @@
 	    } else {
 	      var nextAction = Action.Pop;
 
-	      var _getIndexAndLocation = getIndexAndLocation(),
-	          nextIndex = _getIndexAndLocation[0],
-	          nextLocation = _getIndexAndLocation[1];
+	      var _getIndexAndLocation4 = getIndexAndLocation(),
+	          nextIndex = _getIndexAndLocation4[0],
+	          nextLocation = _getIndexAndLocation4[1];
 
 	      if (blockers.length) {
 	        if (nextIndex != null) {
@@ -11735,8 +11742,8 @@
 	          // Trying to POP to a location with no index. We did not create
 	          // this location, so we can't effectively block the navigation.
 	          warning$1(false, // TODO: Write up a doc that explains our blocking strategy in
-	          // detail and link to it here so people can understand better what
-	          // is going on and how to avoid it.
+	          // detail and link to it here so people can understand better
+	          // what is going on and how to avoid it.
 	          "You are trying to block a POP navigation to a location that was not " + "created by the history library. The block will fail silently in " + "production, but in general you should do all navigation with the " + "history library (instead of using window.history.pushState directly) " + "to avoid this situation.") ;
 	        }
 	      } else {
@@ -11745,12 +11752,23 @@
 	    }
 	  }
 
-	  window.addEventListener(PopStateEventType, handlePop);
+	  window.addEventListener(PopStateEventType, handlePop); // popstate does not fire on hashchange in IE 11 and old (trident) Edge
+	  // https://developer.mozilla.org/de/docs/Web/API/Window/popstate_event
+
+	  window.addEventListener(HashChangeEventType, function () {
+	    var _getIndexAndLocation5 = getIndexAndLocation(),
+	        nextLocation = _getIndexAndLocation5[1]; // Ignore extraneous hashchange events.
+
+
+	    if (createPath(nextLocation) !== createPath(location)) {
+	      handlePop();
+	    }
+	  });
 	  var action = Action.Pop;
 
-	  var _getIndexAndLocation2 = getIndexAndLocation(),
-	      index = _getIndexAndLocation2[0],
-	      location = _getIndexAndLocation2[1];
+	  var _getIndexAndLocation6 = getIndexAndLocation(),
+	      index = _getIndexAndLocation6[0],
+	      location = _getIndexAndLocation6[1];
 
 	  var listeners = createEvents();
 	  var blockers = createEvents();
@@ -11762,10 +11780,22 @@
 	    }), '');
 	  }
 
-	  function createHref(to) {
-	    return typeof to === 'string' ? to : createPath(to);
-	  } // state defaults to `null` because `window.history.state` does
+	  function getBaseHref() {
+	    var base = document.querySelector('base');
+	    var href = '';
 
+	    if (base && base.getAttribute('href')) {
+	      var url = window.location.href;
+	      var hashIndex = url.indexOf('#');
+	      href = hashIndex === -1 ? url : url.slice(0, hashIndex);
+	    }
+
+	    return href;
+	  }
+
+	  function createHref(to) {
+	    return getBaseHref() + '#' + (typeof to === 'string' ? to : createPath(to));
+	  }
 
 	  function getNextLocation(to, state) {
 	    if (state === void 0) {
@@ -11801,10 +11831,10 @@
 	  function applyTx(nextAction) {
 	    action = nextAction;
 
-	    var _getIndexAndLocation3 = getIndexAndLocation();
+	    var _getIndexAndLocation7 = getIndexAndLocation();
 
-	    index = _getIndexAndLocation3[0];
-	    location = _getIndexAndLocation3[1];
+	    index = _getIndexAndLocation7[0];
+	    location = _getIndexAndLocation7[1];
 	    listeners.call({
 	      action: action,
 	      location: location
@@ -11819,10 +11849,12 @@
 	      push(to, state);
 	    }
 
+	    warning$1(nextLocation.pathname.charAt(0) === '/', "Relative pathnames are not supported in hash history.push(" + JSON.stringify(to) + ")") ;
+
 	    if (allowTx(nextAction, nextLocation, retry)) {
-	      var _getHistoryStateAndUr = getHistoryStateAndUrl(nextLocation, index + 1),
-	          historyState = _getHistoryStateAndUr[0],
-	          url = _getHistoryStateAndUr[1]; // TODO: Support forced reloading
+	      var _getHistoryStateAndUr3 = getHistoryStateAndUrl(nextLocation, index + 1),
+	          historyState = _getHistoryStateAndUr3[0],
+	          url = _getHistoryStateAndUr3[1]; // TODO: Support forced reloading
 	      // try...catch because iOS limits us to 100 pushState calls :/
 
 
@@ -11846,10 +11878,12 @@
 	      replace(to, state);
 	    }
 
+	    warning$1(nextLocation.pathname.charAt(0) === '/', "Relative pathnames are not supported in hash history.replace(" + JSON.stringify(to) + ")") ;
+
 	    if (allowTx(nextAction, nextLocation, retry)) {
-	      var _getHistoryStateAndUr2 = getHistoryStateAndUrl(nextLocation, index),
-	          historyState = _getHistoryStateAndUr2[0],
-	          url = _getHistoryStateAndUr2[1]; // TODO: Support forced reloading
+	      var _getHistoryStateAndUr4 = getHistoryStateAndUrl(nextLocation, index),
+	          historyState = _getHistoryStateAndUr4[0],
+	          url = _getHistoryStateAndUr4[1]; // TODO: Support forced reloading
 
 
 	      globalHistory.replaceState(historyState, '', url);
@@ -12877,35 +12911,33 @@
 
 	var _excluded$3 = ["onClick", "reloadDocument", "replace", "state", "target", "to"],
 	    _excluded2 = ["aria-current", "caseSensitive", "className", "end", "style", "to", "children"];
-	// COMPONENTS
-	////////////////////////////////////////////////////////////////////////////////
-
 	/**
-	 * A `<Router>` for use in web browsers. Provides the cleanest URLs.
+	 * A `<Router>` for use in web browsers. Stores the location in the hash
+	 * portion of the URL so it is not sent to the server.
 	 */
 
 
-	function BrowserRouter(_ref) {
-	  var basename = _ref.basename,
-	      children = _ref.children,
-	      window = _ref.window;
+	function HashRouter(_ref2) {
+	  var basename = _ref2.basename,
+	      children = _ref2.children,
+	      window = _ref2.window;
 	  var historyRef = react.exports.useRef();
 
 	  if (historyRef.current == null) {
-	    historyRef.current = createBrowserHistory({
+	    historyRef.current = createHashHistory({
 	      window: window
 	    });
 	  }
 
 	  var history = historyRef.current;
 
-	  var _useState = react.exports.useState({
+	  var _useState3 = react.exports.useState({
 	    action: history.action,
 	    location: history.location
 	  }),
-	      _useState2 = _slicedToArray$1(_useState, 2),
-	      state = _useState2[0],
-	      setState = _useState2[1];
+	      _useState4 = _slicedToArray$1(_useState3, 2),
+	      state = _useState4[0],
+	      setState = _useState4[1];
 
 	  react.exports.useLayoutEffect(function () {
 	    return history.listen(setState);
@@ -40144,7 +40176,7 @@ yarn add @hezymal/react-select
 
 	const App = () => {
 	    const [language, setLanguage] = react.exports.useState(Language.ru);
-	    return (React$1.createElement(BrowserRouter, { basename: "/react-select" },
+	    return (React$1.createElement(HashRouter, null,
 	        React$1.createElement(TranslationContext.Provider, { value: language },
 	            React$1.createElement(GlobalStyle, null),
 	            React$1.createElement(Routes, null,
@@ -40156,6 +40188,9 @@ yarn add @hezymal/react-select
 	};
 
 	const rootElement = document.getElementById("root");
+	if (!rootElement) {
+	    throw new Error("Element with id = 'root' not found");
+	}
 	const root = createRoot(rootElement);
 	root.render(React$1.createElement(App, null));
 
