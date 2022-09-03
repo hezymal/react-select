@@ -3,14 +3,14 @@ import React, { Fragment } from "react";
 import { useTranslation } from "docs/i18n";
 import { StaticCode } from "docs/components/StaticCode";
 import { PageTitle } from "docs/components/Page";
-import { Paragraph, ParagraphTitle } from "docs/components/Paragraph";
+import { ParagraphTitle } from "docs/components/Paragraph";
 
 const code = `
 # NPM
-npm i @hezymal/select --save
+npm i @hezymal/react-select --save
 
 # Yarn
-yarn add @hezymal/select
+yarn add @hezymal/react-select
 `.trim();
 
 export const GettingStartedPage: React.FC = () => {

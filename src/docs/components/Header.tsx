@@ -36,7 +36,7 @@ const languagesOptions: Option<Language>[] = [
 export const Header: FC<Props> = ({ language, onLanguageChange }) => {
     return (
         <StyledHeader>
-            <Logo href="/">@hezymal/select</Logo>
+            <Logo href="/">@hezymal/react-select</Logo>
             <Select<Language>
                 options={languagesOptions}
                 value={language}
