@@ -1,0 +1,12 @@
+{
+    "HomePage:Title": "Главная",
+    "HomePage:Paragraph:1": "Компонент-выборка для React приложений.",
+    "HomePage:Paragraph:2:1": "На странице ",
+    "HomePage:Paragraph:2:2": " можно найти пример установки и использования компонента. Возможности кастомизации описаны в ",
+    "HomePage:Paragraph:2:3": ". И страница ",
+    "HomePage:Paragraph:2:4": " содержит полное описание всех свойств компонета.",
+    "GettingStartedPage:Title": "Начало работы",
+    "GettingStartedPage:Title:1": "Установка",
+    "AdvancedUsagePage:Title": "Продвинутое использование",
+    "ApiPage:Title": "API"
+}

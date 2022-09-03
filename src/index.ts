@@ -1,3 +1,1 @@
-export * from "./SelectInput";
-
-export const sum = (a: number, b: number) => a + b;
+export * from "./Select";

@@ -1,17 +1,40 @@
+import babel from "@rollup/plugin-babel";
+import commonjs from "@rollup/plugin-commonjs";
 import html from "@web/rollup-plugin-html";
-import { getBabelOutputPlugin } from "@rollup/plugin-babel";
+import json from "@rollup/plugin-json";
+import { nodeResolve } from "@rollup/plugin-node-resolve";
+import replace from "@rollup/plugin-replace";
+import serve from "rollup-plugin-serve";
 import typescript from "@rollup/plugin-typescript";
+import postcss from "rollup-plugin-postcss";
 
 export default [
     {
         input: "src/docs/index.tsx",
         output: {
             dir: "docs",
-            format: "cjs",
+            format: "iife",
+            sourcemap: true,
         },
         plugins: [
-            getBabelOutputPlugin({ presets: ["@babel/preset-env"] }),
+            nodeResolve({
+                browser: true,
+            }),
+            replace({
+                "process.env.NODE_ENV": JSON.stringify("development"),
+                preventAssignment: true,
+            }),
+            commonjs(),
+            babel({ presets: ["@babel/preset-env"] }),
             typescript({ tsconfig: "docs.tsconfig.json" }),
+            json(),
+            postcss({
+                plugins: [],
+            }),
+            serve({
+                contentBase: ["docs"],
+                historyApiFallback: true,
+            }),
         ],
     },
     {
