@@ -16215,7 +16215,7 @@
 		"HomePage:Paragraph:2:1": "На странице ",
 		"HomePage:Paragraph:2:2": " можно найти пример установки и использования компонента. Возможности кастомизации описаны в ",
 		"HomePage:Paragraph:2:3": ". И страница ",
-		"HomePage:Paragraph:2:4": " содержит полное описание всех свойств компонета.",
+		"HomePage:Paragraph:2:4": " содержит полное описание всех свойств компонента.",
 		"HomePage:Paragraph:3:1": "Ссылка на репозиторий проекта: ",
 		"GettingStartedPage:Title": "Начало работы",
 		"GettingStartedPage:Title:1": "Установка",
@@ -40144,7 +40144,7 @@ yarn add @hezymal/react-select
 
 	const App = () => {
 	    const [language, setLanguage] = react.exports.useState(Language.ru);
-	    return (React$1.createElement(BrowserRouter, null,
+	    return (React$1.createElement(BrowserRouter, { basename: "/react-select" },
 	        React$1.createElement(TranslationContext.Provider, { value: language },
 	            React$1.createElement(GlobalStyle, null),
 	            React$1.createElement(Routes, null,

@@ -13,7 +13,7 @@ export const App: React.FC = () => {
     const [language, setLanguage] = useState(Language.ru);
 
     return (
-        <BrowserRouter>
+        <BrowserRouter basename="/react-select">
             <TranslationContext.Provider value={language}>
                 <GlobalStyle />
                 <Routes>
