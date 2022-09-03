@@ -2,6 +2,7 @@ import babel from "@rollup/plugin-babel";
 import commonjs from "@rollup/plugin-commonjs";
 import html from "@web/rollup-plugin-html";
 import json from "@rollup/plugin-json";
+import livereload from "rollup-plugin-livereload";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 import replace from "@rollup/plugin-replace";
 import serve from "rollup-plugin-serve";
@@ -35,6 +36,7 @@ export default [
                 contentBase: ["docs"],
                 historyApiFallback: true,
             }),
+            livereload(),
         ],
     },
     {

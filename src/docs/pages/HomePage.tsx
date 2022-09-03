@@ -2,8 +2,10 @@ import React, { Fragment } from "react";
 
 import { LiveCode } from "docs/components/LiveCode";
 import { Link } from "docs/components/Link";
+import { OuterLink } from "docs/components/OuterLink";
 import { PageTitle } from "docs/components/Page";
 import { Paragraph } from "docs/components/Paragraph";
+import { REPOSITORY_URL } from "docs/constants";
 import { useTranslation } from "docs/i18n";
 import { navigation } from "docs/navigation";
 import { Select } from "Select";
@@ -57,6 +59,10 @@ export const HomePage: React.FC = () => {
                 <Link to={navigation.api()}>{t`ApiPage:Title`}</Link>
                 &raquo;
                 {t`HomePage:Paragraph:2:4`}
+            </Paragraph>
+            <Paragraph>
+                {t`HomePage:Paragraph:3:1`}
+                <OuterLink href={REPOSITORY_URL}>{REPOSITORY_URL}</OuterLink>.
             </Paragraph>
         </Fragment>
     );

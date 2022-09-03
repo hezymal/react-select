@@ -7,7 +7,7 @@ import { AdvancedUsagePage } from "./pages/AdvancedUsagePage";
 import { ApiPage } from "./pages/ApiPage";
 import { GettingStartedPage } from "./pages/GettingStartedPage";
 import { HomePage } from "./pages/HomePage";
-import { GlobalStyle } from "./GlobalStyle";
+import { GlobalStyle } from "./components/GlobalStyle";
 
 export const App: React.FC = () => {
     const [language, setLanguage] = useState(Language.ru);

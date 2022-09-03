@@ -36,6 +36,7 @@ const StyledSelect = styled.div`
 `;
 
 const Selected = styled.div`
+    background-color: white;
     border: 1px solid ${styles.colors.grey1};
     border-radius: ${styles.borders.radius[0]};
     cursor: pointer;
