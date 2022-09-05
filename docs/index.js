@@ -16280,7 +16280,9 @@
     position: relative;
     font-size: 16px;
 `;
-	const Container = He.div `
+	const Container = He.div.withConfig({
+	    shouldForwardProp: (propertyName) => propertyName !== "disabled",
+	}) `
     border: 1px solid ${styles$1.colors.grey1};
     border-radius: ${styles$1.borders.radius[0]};
     height: ${styles$1.span(6)};
@@ -16308,7 +16310,9 @@
 	const ContainerRight = He.div `
     width: ${styles$1.span(4)};
 `;
-	const Label = He.label `
+	const Label = He.label.withConfig({
+	    shouldForwardProp: (propertyName) => propertyName !== "disabled",
+	}) `
     display: inline-block;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -16336,7 +16340,9 @@
     white-space: nowrap;
     line-height: ${styles$1.span(6, -2)};
 `;
-	const Cursor = He.div `
+	const Cursor = He.div.withConfig({
+	    shouldForwardProp: (propertyName) => propertyName !== "direction",
+	}) `
     height: ${styles$1.span(3)};
     text-align: center;
     font-size: 28px;
@@ -16354,7 +16360,9 @@
         `;
 }}
 `;
-	const Options = He.ul `
+	const Options = He.ul.withConfig({
+	    shouldForwardProp: (propertyName) => propertyName !== "show",
+	}) `
     border: 1px solid ${styles$1.colors.grey1};
     border-radius: ${styles$1.borders.radius[0]};
     background-color: white;

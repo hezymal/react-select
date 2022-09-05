@@ -46,7 +46,9 @@ const StyledSelect = styled.div`
     font-size: 16px;
 `;
 
-const Container = styled.div<ContainerProps>`
+const Container = styled.div.withConfig<ContainerProps>({
+    shouldForwardProp: (propertyName) => propertyName !== "disabled",
+})`
     border: 1px solid ${styles.colors.grey1};
     border-radius: ${styles.borders.radius[0]};
     height: ${styles.span(6)};
@@ -78,7 +80,9 @@ const ContainerRight = styled.div`
     width: ${styles.span(4)};
 `;
 
-const Label = styled.label<LabelProps>`
+const Label = styled.label.withConfig<LabelProps>({
+    shouldForwardProp: (propertyName) => propertyName !== "disabled",
+})`
     display: inline-block;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -109,7 +113,9 @@ const Value = styled.div`
     line-height: ${styles.span(6, -2)};
 `;
 
-const Cursor = styled.div<CursorProps>`
+const Cursor = styled.div.withConfig<CursorProps>({
+    shouldForwardProp: (propertyName) => propertyName !== "direction",
+})`
     height: ${styles.span(3)};
     text-align: center;
     font-size: 28px;
@@ -129,7 +135,9 @@ const Cursor = styled.div<CursorProps>`
     }}
 `;
 
-const Options = styled.ul<OptionsProps>`
+const Options = styled.ul.withConfig<OptionsProps>({
+    shouldForwardProp: (propertyName) => propertyName !== "show",
+})`
     border: 1px solid ${styles.colors.grey1};
     border-radius: ${styles.borders.radius[0]};
     background-color: white;
