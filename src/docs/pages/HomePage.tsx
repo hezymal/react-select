@@ -1,34 +1,31 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useState } from "react";
 
 import { LiveCode } from "docs/components/LiveCode";
 import { Link } from "docs/components/Link";
 import { OuterLink } from "docs/components/OuterLink";
 import { PageTitle } from "docs/components/Page";
 import { Paragraph } from "docs/components/Paragraph";
+import { Section, SectionTitle } from "docs/components/Section";
 import { REPOSITORY_URL } from "docs/constants";
 import { useTranslation } from "docs/i18n";
 import { navigation } from "docs/navigation";
 import { Select } from "Select";
 
-const scope = { Select };
+const codeScope = { Select, useState };
 const code = `
-() => {
-    const Color = {
-        red: "red",
-        green: "green",
-        blue: "blue",
-    };
+const planets = [
+    { label: "Earth", value: "earth" },
+    { label: "Mars", value: "mars" },
+    { label: "Venera", value: "venera" },
+];
 
-    const colors = [
-        { label: "Red", value: Color.red },
-        { label: "Green", value: Color.green },
-        { label: "Blue", value: Color.blue },
-    ];
+function MyComponent() {
+    const [planet, setPlanet] = useState("earth");
 
-    const [value, setValue] = React.useState(Color.red);
-
-    return <Select options={colors} value={value} onChange={setValue} />;
+    return <Select options={planets} value={planet} onChange={setPlanet} />;
 }
+
+render(<MyComponent />);
 `.trim();
 
 export const HomePage: React.FC = () => {
@@ -36,34 +33,45 @@ export const HomePage: React.FC = () => {
 
     return (
         <Fragment>
-            <PageTitle>Select</PageTitle>
-            <Paragraph>{t`HomePage:Paragraph:1`}</Paragraph>
-            <Paragraph>
-                <LiveCode code={code} scope={scope} />
-            </Paragraph>
-            <Paragraph>
-                {t`HomePage:Paragraph:2:1`}
-                &laquo;
-                <Link
-                    to={navigation.gettingStarted()}
-                >{t`GettingStartedPage:Title`}</Link>
-                &raquo;
-                {t`HomePage:Paragraph:2:2`}
-                &laquo;
-                <Link
-                    to={navigation.advancedUsage()}
-                >{t`AdvancedUsagePage:Title`}</Link>
-                &raquo;
-                {t`HomePage:Paragraph:2:3`}
-                &laquo;
-                <Link to={navigation.api()}>{t`ApiPage:Title`}</Link>
-                &raquo;
-                {t`HomePage:Paragraph:2:4`}
-            </Paragraph>
-            <Paragraph>
-                {t`HomePage:Paragraph:3:1`}
-                <OuterLink href={REPOSITORY_URL}>{REPOSITORY_URL}</OuterLink>.
-            </Paragraph>
+            <PageTitle>@hezymal/react-select</PageTitle>
+            <Section>
+                <Paragraph>{t`HomePage:Paragraph:1`}</Paragraph>
+                <Paragraph>
+                    Пример компонента и код (можно редактировать):
+                </Paragraph>
+                <Paragraph>
+                    <LiveCode code={code} scope={codeScope} noInline />
+                </Paragraph>
+            </Section>
+            <Section>
+                <SectionTitle>Если заинтересовало:</SectionTitle>
+                <ul>
+                    <li>
+                        <Link
+                            to={navigation.gettingStarted()}
+                        >{t`GettingStartedPage:Title`}</Link>{" "}
+                        - тут можно найти примеры установки и использования
+                        компонента;
+                    </li>
+                    <li>
+                        <Link
+                            to={navigation.advancedUsage()}
+                        >{t`AdvancedUsagePage:Title`}</Link>{" "}
+                        - здесь примеры кастомизации;
+                    </li>
+                    <li>
+                        <Link to={navigation.api()}>{t`ApiPage:Title`}</Link> -
+                        здесь описание всех доступных свойств;
+                    </li>
+                    <li>
+                        Ну, и можно посетить репозиторий проекта:{" "}
+                        <OuterLink href={REPOSITORY_URL}>
+                            {REPOSITORY_URL}
+                        </OuterLink>
+                        .
+                    </li>
+                </ul>
+            </Section>
         </Fragment>
     );
 };

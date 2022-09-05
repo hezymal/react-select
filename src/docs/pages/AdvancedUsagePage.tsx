@@ -9,6 +9,8 @@ export const AdvancedUsagePage: React.FC = () => {
     return (
         <Fragment>
             <PageTitle>{t`AdvancedUsagePage:Title`}</PageTitle>
+
+            В разработке
         </Fragment>
     );
 };

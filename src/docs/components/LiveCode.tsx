@@ -1,3 +1,4 @@
+import { Language } from "prism-react-renderer";
 import theme from "prism-react-renderer/themes/nightOwlLight";
 import React, { FC } from "react";
 import { LiveProvider, LiveEditor, LiveError, LivePreview } from "react-live";
@@ -7,7 +8,9 @@ import { styles } from "styles";
 
 interface Props {
     code: string;
-    scope: Record<string, any>;
+    scope?: Record<string, any>;
+    noInline?: boolean;
+    language?: Language;
 }
 
 const StyledLivePreview = styled(LivePreview)`
@@ -37,9 +40,9 @@ const StyledLiveError = styled(LiveError)`
     color: #403f53;
 `;
 
-export const LiveCode: FC<Props> = ({ code, scope }) => {
+export const LiveCode: FC<Props> = (props) => {
     return (
-        <LiveProvider code={code} scope={scope}>
+        <LiveProvider {...props}>
             <StyledLivePreview />
             <StyledLiveEditor theme={theme} />
             <StyledLiveError />

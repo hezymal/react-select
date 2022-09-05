@@ -3,10 +3,10 @@ import styled from "styled-components";
 import { styles } from "styles";
 
 export const Paragraph = styled.div`
-    margin: 0 0 ${styles.span(3)};
+    margin: 0 0 ${styles.span(2)};
 `;
 
-export const ParagraphTitle = styled.h2`
-    margin: 0 0 ${styles.span(3)};
-    line-height: ${styles.span(3)};
+export const ParagraphTitle = styled.h3`
+    margin: 0 0 ${styles.span(2)};
+    line-height: ${styles.span(2)};
 `;

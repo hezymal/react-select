@@ -14926,7 +14926,7 @@
 	const span = (points, offsetInPixels = 0, pointsInPixels = 8) => points * pointsInPixels + offsetInPixels + "px";
 	const styles$1 = { borders, colors, span };
 
-	const Container = He.div `
+	const Container$1 = He.div `
     margin: 0 auto;
     width: ${styles$1.span(138)};
 `;
@@ -16279,22 +16279,46 @@
     position: relative;
     font-size: 16px;
 `;
-	const Selected = He.div `
+	const Container = He.div `
     background-color: white;
     border: 1px solid ${styles$1.colors.grey1};
     border-radius: ${styles$1.borders.radius[0]};
     cursor: pointer;
-    display: flex;
-    padding: ${styles$1.span(1.5)} ${styles$1.span(2)};
-    line-height: ${styles$1.span(3)};
     height: ${styles$1.span(6)};
     user-select: none;
+    display: flex;
+    padding: 0 ${styles$1.span(2)};
+    flex-wrap: wrap;
 `;
-	const SelectedLabel = He.div `
+	const ContainerLeft = He.div `
     width: calc(100% - ${styles$1.span(4)});
+    position: relative;
 `;
-	const SelectedIcon = He.div `
+	const ContainerRight = He.div `
     width: ${styles$1.span(4)};
+`;
+	const Label = He.label `
+    display: inline-block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 12px;
+    height: ${styles$1.span(3)};
+    line-height: ${styles$1.span(2)};
+    top: ${styles$1.span(-1.5, -1)};
+    left: ${styles$1.span(-0.5)};
+    position: absolute;
+    padding: ${styles$1.span(0.5)};
+    background-color: white;
+    max-width: calc(100% + ${styles$1.span(1)});
+`;
+	const Value = He.div `
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    line-height: ${styles$1.span(6, -2)};
+`;
+	const Cursor = He.div `
     height: ${styles$1.span(3)};
     text-align: center;
     font-size: 28px;
@@ -16302,12 +16326,12 @@
     ${(props) => {
     if (props.direction === "up") {
         return `
-                transform: rotate(180deg) translate(0, ${styles$1.span(1.5, -2)});
+                transform: rotate(180deg) translate(0, ${styles$1.span(0)});
                 padding-right: ${styles$1.span(1)};
             `;
     }
     return `
-            transform: translate(0, ${styles$1.span(1.5, -2)});
+            transform: translate(0, ${styles$1.span(2.5)});
             padding-left: ${styles$1.span(1)};
         `;
 }}
@@ -16324,6 +16348,7 @@
     left: 0;
     width: 100%;
     user-select: none;
+    line-height: ${styles$1.span(3)};
 
     ${(props) => {
     if (!props.show) {
@@ -16335,13 +16360,16 @@
 	const StyledOption = He.li `
     cursor: pointer;
     padding: ${styles$1.span(1)} ${styles$1.span(2)};
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 
     &:hover {
         background-color: ${styles$1.colors.grey2};
     }
 `;
 	function Select(props) {
-	    const { options, value, onChange } = props;
+	    const { options, label, value, onChange } = props;
 	    const [showOptions, setShowOptions] = react.exports.useState(false);
 	    react.exports.useEffect(() => {
 	        const handleDocumentClick = () => setShowOptions(false);
@@ -16354,7 +16382,7 @@
 	    if (selected === undefined) {
 	        throw new Error(`Unknown value: "${value}"`);
 	    }
-	    const handleSelectedClick = (event) => {
+	    const handleContainerClick = (event) => {
 	        event.stopPropagation();
 	        setShowOptions((showOptions) => !showOptions);
 	    };
@@ -16362,13 +16390,68 @@
 	        onChange(option.value, option, event);
 	    };
 	    return (React$1.createElement(StyledSelect, null,
-	        React$1.createElement(Selected, { onClick: handleSelectedClick },
-	            React$1.createElement(SelectedLabel, null, selected.label),
-	            React$1.createElement(SelectedIcon, { direction: showOptions ? "up" : "down" }, "\uD83E\uDC93")),
+	        React$1.createElement(Container, { onClick: handleContainerClick },
+	            React$1.createElement(ContainerLeft, null,
+	                label && React$1.createElement(Label, null, label),
+	                React$1.createElement(Value, null, selected.label)),
+	            React$1.createElement(ContainerRight, null,
+	                React$1.createElement(Cursor, { direction: showOptions ? "up" : "down" }, "\uD83E\uDC93"))),
 	        React$1.createElement(Options, { show: showOptions }, options.map((option) => {
 	            return (React$1.createElement(StyledOption, { key: option.value + "", onClick: (event) => handleOptionClick(option, event) }, option.label));
 	        }))));
 	}
+	// export function MultiSelect<TValue>(
+	//     props: MultiSelectProps<TValue>
+	// ): JSX.Element {
+	//     const { options, values, onChange } = props;
+	//     const [showOptions, setShowOptions] = useState(false);
+	//     useEffect(() => {
+	//         const handleDocumentClick = () => setShowOptions(false);
+	//         document.addEventListener("click", handleDocumentClick);
+	//         return () => {
+	//             document.removeEventListener("click", handleDocumentClick);
+	//         };
+	//     }, []);
+	//     const selecteds = useMemo(() => {
+	//         return options.filter((option) => {
+	//             return !!values.find((value) => value === option.value);
+	//         });
+	//     }, [options, values]);
+	//     const handleSelectedClick = (event: DivElementClickEvent) => {
+	//         event.stopPropagation();
+	//         setShowOptions((showOptions) => !showOptions);
+	//     };
+	//     const handleOptionClick = (
+	//         option: Option<TValue>,
+	//         event: LiElementClickEvent
+	//     ) => {
+	//         onChange(option.value, option, event);
+	//     };
+	//     return (
+	//         <StyledSelect>
+	//             <Selected onClick={handleSelectedClick}>
+	//                 <SelectedLabel>{selected.label}</SelectedLabel>
+	//                 <SelectedIcon direction={showOptions ? "up" : "down"}>
+	//                     🢓
+	//                 </SelectedIcon>
+	//             </Selected>
+	//             <Options show={showOptions}>
+	//                 {options.map((option) => {
+	//                     return (
+	//                         <StyledOption
+	//                             key={option.value + ""}
+	//                             onClick={(event) =>
+	//                                 handleOptionClick(option, event)
+	//                             }
+	//                         >
+	//                             {option.label}
+	//                         </StyledOption>
+	//                     );
+	//                 })}
+	//             </Options>
+	//         </StyledSelect>
+	//     );
+	// }
 
 	const languagesOptions = [
 	    { label: Language.en, value: Language.en },
@@ -16462,7 +16545,7 @@
     overflow-y: auto;
 `;
 	const Layout = ({ language, onLanguageChange }) => {
-	    return (React$1.createElement(Container, null,
+	    return (React$1.createElement(Container$1, null,
 	        React$1.createElement(HeadPart, null,
 	            React$1.createElement(Header, { language: language, onLanguageChange: onLanguageChange })),
 	        React$1.createElement(Row, null,
@@ -16482,14 +16565,16 @@
 	const AdvancedUsagePage = () => {
 	    const t = useTranslation();
 	    return (React$1.createElement(react.exports.Fragment, null,
-	        React$1.createElement(PageTitle, null, t `AdvancedUsagePage:Title`)));
+	        React$1.createElement(PageTitle, null, t `AdvancedUsagePage:Title`),
+	        "\u0412 \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0435"));
 	};
 
-	const ApiPage = () => {
-	    const t = useTranslation();
-	    return (React$1.createElement(react.exports.Fragment, null,
-	        React$1.createElement(PageTitle, null, t `ApiPage:Title`)));
-	};
+	const Section = He.div `
+    margin: 0 0 ${styles$1.span(4)};
+`;
+	const SectionTitle = He.h2 `
+    margin: 0 0 ${styles$1.span(3)};
+`;
 
 	/**
 	 * Prism: Lightweight, robust, elegant syntax highlighting
@@ -21157,27 +21242,60 @@
 `;
 	const StaticCode = ({ language, code }) => (React$1.createElement(Highlight, Object.assign({}, defaultProps, { theme: theme$1, code: code, language: language }), ({ className, style, tokens, getLineProps, getTokenProps }) => (React$1.createElement(Pre, { className: className, style: style }, tokens.map((line, i) => (React$1.createElement("div", Object.assign({}, getLineProps({ line, key: i })), line.map((token, key) => (React$1.createElement("span", Object.assign({}, getTokenProps({ token, key }))))))))))));
 
-	const Paragraph = He.div `
-    margin: 0 0 ${styles$1.span(3)};
-`;
-	const ParagraphTitle = He.h2 `
-    margin: 0 0 ${styles$1.span(3)};
-    line-height: ${styles$1.span(3)};
-`;
+	const singleCode$1 = `
+function Select<TValue>(props: SelectProps<TValue>): JSX.Element;
+    
+    // value type
+    type TValue = any;
 
-	const code$1 = `
-# NPM
-npm i @hezymal/react-select --save
+    // properties type
+    interface SelectProps<TValue> {
 
-# Yarn
-yarn add @hezymal/react-select
+        // options
+        options: Option<TValue>[];
+
+        // current value
+        value: TValue;
+
+        // label
+        label?: string;
+
+        // change event callback function
+        onChange: (
+
+            // selected value
+            value: TValue,
+            
+            // selected option
+            option: Option<TValue>,
+
+            // Virtual DOM element event
+            event: React.MouseEvent<HTMLLIElement, MouseEvent>
+
+        ) => void;
+    }
+
+    // option type
+    interface Option<TValue> {
+
+        // option label
+        label: string | JSX.Element;
+
+        // option value
+        value: TValue;
+        
+    }
+
+        // value type
+        type TValue = any;
 `.trim();
-	const GettingStartedPage = () => {
+	const ApiPage = () => {
 	    const t = useTranslation();
 	    return (React$1.createElement(react.exports.Fragment, null,
-	        React$1.createElement(PageTitle, null, t `GettingStartedPage:Title`),
-	        React$1.createElement(ParagraphTitle, null, t `GettingStartedPage:Title:1`),
-	        React$1.createElement(StaticCode, { language: "bash", code: code$1 })));
+	        React$1.createElement(PageTitle, null, t `ApiPage:Title`),
+	        React$1.createElement(Section, null,
+	            React$1.createElement(SectionTitle, null, "\u041A\u043E\u043C\u043F\u043E\u043D\u0435\u043D\u0442 Select"),
+	            React$1.createElement(StaticCode, { language: "typescript", code: singleCode$1 }))));
 	};
 
 	var lib$1 = {};
@@ -40094,11 +40212,74 @@ yarn add @hezymal/react-select
     background-color: #fff6f6;
     color: #403f53;
 `;
-	const LiveCode = ({ code, scope }) => {
-	    return (React$1.createElement(LiveProvider, { code: code, scope: scope },
+	const LiveCode = (props) => {
+	    return (React$1.createElement(LiveProvider, Object.assign({}, props),
 	        React$1.createElement(StyledLivePreview, null),
 	        React$1.createElement(StyledLiveEditor, { theme: theme$1 }),
 	        React$1.createElement(StyledLiveError, null)));
+	};
+
+	const Paragraph = He.div `
+    margin: 0 0 ${styles$1.span(2)};
+`;
+	He.h3 `
+    margin: 0 0 ${styles$1.span(2)};
+    line-height: ${styles$1.span(2)};
+`;
+
+	const installationCode = `
+# NPM
+npm i @hezymal/react-select --save
+
+# Yarn
+yarn add @hezymal/react-select
+`.trim();
+	const exampleCode = `
+import React from "react";
+import Select from "@hezymal/react-select";
+
+const options = [
+    { label: "Red", value: "red" },
+    { label: "Green", value: "green" },
+    { label: "Blue", value: "blue" },
+];
+
+const MyComponent = () => {
+    const [value, setValue] = useState("blue");
+
+    return <Select options={options} value={value} onChange={setValue} />;
+}
+`.trim();
+	const singleCodeScope = { Select, useState: react.exports.useState };
+	const singleCode = `
+const colors = [
+    { label: "Red", value: "red" },
+    { label: "Green", value: "green" },
+    { label: "Blue", value: "blue" },
+];
+
+function MyComponent() {
+    const [color, setColor] = useState("red");
+
+    return <Select options={colors} label="Choose color" value={color} onChange={setColor} />;
+}
+
+render(<MyComponent />);
+`.trim();
+	const GettingStartedPage = () => {
+	    const t = useTranslation();
+	    return (React$1.createElement(react.exports.Fragment, null,
+	        React$1.createElement(PageTitle, null, t `GettingStartedPage:Title`),
+	        React$1.createElement(Section, null,
+	            React$1.createElement(SectionTitle, null,
+	                t `GettingStartedPage:Title:1`,
+	                " \u0438 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u043D\u0438\u0435"),
+	            React$1.createElement(StaticCode, { language: "bash", code: installationCode }),
+	            React$1.createElement(StaticCode, { language: "javascript", code: exampleCode })),
+	        React$1.createElement(Section, null,
+	            React$1.createElement(SectionTitle, null, "\u0421 \u043E\u0434\u043D\u0438\u043C \u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0435\u043C"),
+	            React$1.createElement(Paragraph, null, "\u041F\u0440\u0438\u043C\u0435\u0440 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u043D\u0438\u044F \u0441 \u0432\u044B\u0431\u043E\u0440\u043A\u043E\u0439 \u043E\u0434\u043D\u043E\u0433\u043E \u0437\u043D\u0430\u0447\u0435\u043D\u0438\u044F:"),
+	            React$1.createElement(LiveCode, { code: singleCode, scope: singleCodeScope, noInline: true }))));
 	};
 
 	const Link = He(Link$2) `
@@ -40111,51 +40292,50 @@ yarn add @hezymal/react-select
     text-decoration: none;
 `;
 
-	const scope = { Select };
+	const codeScope = { Select, useState: react.exports.useState };
 	const code = `
-() => {
-    const Color = {
-        red: "red",
-        green: "green",
-        blue: "blue",
-    };
+const planets = [
+    { label: "Earth", value: "earth" },
+    { label: "Mars", value: "mars" },
+    { label: "Venera", value: "venera" },
+];
 
-    const colors = [
-        { label: "Red", value: Color.red },
-        { label: "Green", value: Color.green },
-        { label: "Blue", value: Color.blue },
-    ];
+function MyComponent() {
+    const [planet, setPlanet] = useState("earth");
 
-    const [value, setValue] = React.useState(Color.red);
-
-    return <Select options={colors} value={value} onChange={setValue} />;
+    return <Select options={planets} value={planet} onChange={setPlanet} />;
 }
+
+render(<MyComponent />);
 `.trim();
 	const HomePage = () => {
 	    const t = useTranslation();
 	    return (React$1.createElement(react.exports.Fragment, null,
-	        React$1.createElement(PageTitle, null, "Select"),
-	        React$1.createElement(Paragraph, null, t `HomePage:Paragraph:1`),
-	        React$1.createElement(Paragraph, null,
-	            React$1.createElement(LiveCode, { code: code, scope: scope })),
-	        React$1.createElement(Paragraph, null,
-	            t `HomePage:Paragraph:2:1`,
-	            "\u00AB",
-	            React$1.createElement(Link, { to: navigation.gettingStarted() }, t `GettingStartedPage:Title`),
-	            "\u00BB",
-	            t `HomePage:Paragraph:2:2`,
-	            "\u00AB",
-	            React$1.createElement(Link, { to: navigation.advancedUsage() }, t `AdvancedUsagePage:Title`),
-	            "\u00BB",
-	            t `HomePage:Paragraph:2:3`,
-	            "\u00AB",
-	            React$1.createElement(Link, { to: navigation.api() }, t `ApiPage:Title`),
-	            "\u00BB",
-	            t `HomePage:Paragraph:2:4`),
-	        React$1.createElement(Paragraph, null,
-	            t `HomePage:Paragraph:3:1`,
-	            React$1.createElement(OuterLink, { href: REPOSITORY_URL }, REPOSITORY_URL),
-	            ".")));
+	        React$1.createElement(PageTitle, null, "@hezymal/react-select"),
+	        React$1.createElement(Section, null,
+	            React$1.createElement(Paragraph, null, t `HomePage:Paragraph:1`),
+	            React$1.createElement(Paragraph, null, "\u041F\u0440\u0438\u043C\u0435\u0440 \u043A\u043E\u043C\u043F\u043E\u043D\u0435\u043D\u0442\u0430 \u0438 \u043A\u043E\u0434 (\u043C\u043E\u0436\u043D\u043E \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C):"),
+	            React$1.createElement(Paragraph, null,
+	                React$1.createElement(LiveCode, { code: code, scope: codeScope, noInline: true }))),
+	        React$1.createElement(Section, null,
+	            React$1.createElement(SectionTitle, null, "\u0415\u0441\u043B\u0438 \u0437\u0430\u0438\u043D\u0442\u0435\u0440\u0435\u0441\u043E\u0432\u0430\u043B\u043E:"),
+	            React$1.createElement("ul", null,
+	                React$1.createElement("li", null,
+	                    React$1.createElement(Link, { to: navigation.gettingStarted() }, t `GettingStartedPage:Title`),
+	                    " ",
+	                    "- \u0442\u0443\u0442 \u043C\u043E\u0436\u043D\u043E \u043D\u0430\u0439\u0442\u0438 \u043F\u0440\u0438\u043C\u0435\u0440\u044B \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0438 \u0438 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u043D\u0438\u044F \u043A\u043E\u043C\u043F\u043E\u043D\u0435\u043D\u0442\u0430;"),
+	                React$1.createElement("li", null,
+	                    React$1.createElement(Link, { to: navigation.advancedUsage() }, t `AdvancedUsagePage:Title`),
+	                    " ",
+	                    "- \u0437\u0434\u0435\u0441\u044C \u043F\u0440\u0438\u043C\u0435\u0440\u044B \u043A\u0430\u0441\u0442\u043E\u043C\u0438\u0437\u0430\u0446\u0438\u0438;"),
+	                React$1.createElement("li", null,
+	                    React$1.createElement(Link, { to: navigation.api() }, t `ApiPage:Title`),
+	                    " - \u0437\u0434\u0435\u0441\u044C \u043E\u043F\u0438\u0441\u0430\u043D\u0438\u0435 \u0432\u0441\u0435\u0445 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u044B\u0445 \u0441\u0432\u043E\u0439\u0441\u0442\u0432;"),
+	                React$1.createElement("li", null,
+	                    "\u041D\u0443, \u0438 \u043C\u043E\u0436\u043D\u043E \u043F\u043E\u0441\u0435\u0442\u0438\u0442\u044C \u0440\u0435\u043F\u043E\u0437\u0438\u0442\u043E\u0440\u0438\u0439 \u043F\u0440\u043E\u0435\u043A\u0442\u0430:",
+	                    " ",
+	                    React$1.createElement(OuterLink, { href: REPOSITORY_URL }, REPOSITORY_URL),
+	                    ".")))));
 	};
 
 	const GlobalStyle = We `
