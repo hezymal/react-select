@@ -1,11 +1,13 @@
 import React, { Fragment, useState } from "react";
 
 import { useTranslation } from "docs/i18n";
+import { Checkbox } from "docs/components/Checkbox";
+import { Col, Row } from "docs/components/Grid";
 import { LiveCode } from "docs/components/LiveCode";
-import { StaticCode } from "docs/components/StaticCode";
 import { PageTitle } from "docs/components/Page";
-import { Section, SectionTitle } from "docs/components/Section";
 import { Paragraph } from "docs/components/Paragraph";
+import { Section, SectionTitle } from "docs/components/Section";
+import { StaticCode } from "docs/components/StaticCode";
 import { Select } from "Select";
 
 const installationCode = `
@@ -33,7 +35,7 @@ const MyComponent = () => {
 }
 `.trim();
 
-const singleCodeScope = { Select, useState };
+const singleCodeScope = { Col, Checkbox, Fragment, Row, Select, useState };
 const singleCode = `
 const colors = [
     { label: "Red", value: "red" },
@@ -43,8 +45,29 @@ const colors = [
 
 function MyComponent() {
     const [color, setColor] = useState("red");
+    const [disabled, setDisabled] = useState(false);
 
-    return <Select options={colors} label="Choose color" value={color} onChange={setColor} />;
+    return (
+        <Row>
+            <Col size={16}>
+                <Select
+                    options={colors}
+                    label="Choose color"
+                    disabled={disabled}
+                    value={color}
+                    onChange={setColor}
+                />
+            </Col>
+            <Col size={4}>
+                <Checkbox
+                    name="disabled"
+                    label="Disabled"
+                    value={disabled}
+                    onChange={setDisabled}
+                />
+            </Col>
+        </Row>
+    );
 }
 
 render(<MyComponent />);
@@ -57,7 +80,9 @@ export const GettingStartedPage: React.FC = () => {
         <Fragment>
             <PageTitle>{t`GettingStartedPage:Title`}</PageTitle>
             <Section>
-                <SectionTitle>{t`GettingStartedPage:Title:1`} и использование</SectionTitle>
+                <SectionTitle>
+                    {t`GettingStartedPage:Title:1`} и использование
+                </SectionTitle>
                 <StaticCode language="bash" code={installationCode} />
                 <StaticCode language="javascript" code={exampleCode} />
             </Section>

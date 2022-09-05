@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { styles } from "./styles";
 
 type DivElementClickEvent = React.MouseEvent<HTMLDivElement, MouseEvent>;
+
 type LiElementClickEvent = React.MouseEvent<HTMLLIElement, MouseEvent>;
 
 export interface Option<TValue> {
@@ -14,6 +15,7 @@ export interface Option<TValue> {
 export interface SelectProps<TValue> {
     options: Option<TValue>[];
     value: TValue;
+    disabled?: boolean;
     label?: string;
     onChange: (
         value: TValue,
@@ -22,22 +24,20 @@ export interface SelectProps<TValue> {
     ) => void;
 }
 
-export interface MultiSelectProps<TValue> {
-    options: Option<TValue>[];
-    values: TValue[];
-    onChange: (
-        values: TValue[],
-        options: Option<TValue>[],
-        event: LiElementClickEvent
-    ) => void;
+interface ContainerProps {
+    disabled: boolean;
 }
 
 interface OptionsProps {
     show: boolean;
 }
 
-interface SelectedIconProps {
+interface CursorProps {
     direction: "up" | "down";
+}
+
+interface LabelProps {
+    disabled: boolean;
 }
 
 const StyledSelect = styled.div`
@@ -46,16 +46,27 @@ const StyledSelect = styled.div`
     font-size: 16px;
 `;
 
-const Container = styled.div`
-    background-color: white;
+const Container = styled.div<ContainerProps>`
     border: 1px solid ${styles.colors.grey1};
     border-radius: ${styles.borders.radius[0]};
-    cursor: pointer;
     height: ${styles.span(6)};
     user-select: none;
     display: flex;
     padding: 0 ${styles.span(2)};
     flex-wrap: wrap;
+
+    ${(props) => {
+        if (props.disabled) {
+            return `
+                background-color: ${styles.colors.grey3};
+            `;
+        }
+
+        return `
+            background-color: white;
+            cursor: pointer;
+        `;
+    }}
 `;
 
 const ContainerLeft = styled.div`
@@ -67,7 +78,7 @@ const ContainerRight = styled.div`
     width: ${styles.span(4)};
 `;
 
-const Label = styled.label`
+const Label = styled.label<LabelProps>`
     display: inline-block;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -79,8 +90,16 @@ const Label = styled.label`
     left: ${styles.span(-0.5)};
     position: absolute;
     padding: ${styles.span(0.5)};
-    background-color: white;
     max-width: calc(100% + ${styles.span(1)});
+    border-radius: ${styles.borders.radius[0]};
+
+    ${(props) => {
+        if (props.disabled) {
+            return `background-color: ${styles.colors.grey3};`;
+        }
+
+        return "background-color: white;";
+    }}
 `;
 
 const Value = styled.div`
@@ -90,7 +109,7 @@ const Value = styled.div`
     line-height: ${styles.span(6, -2)};
 `;
 
-const Cursor = styled.div<SelectedIconProps>`
+const Cursor = styled.div<CursorProps>`
     height: ${styles.span(3)};
     text-align: center;
     font-size: 28px;
@@ -146,7 +165,7 @@ const StyledOption = styled.li`
 `;
 
 export function Select<TValue>(props: SelectProps<TValue>): JSX.Element {
-    const { options, label, value, onChange } = props;
+    const { disabled = false, label, options, value, onChange } = props;
 
     const [showOptions, setShowOptions] = useState(false);
 
@@ -170,6 +189,10 @@ export function Select<TValue>(props: SelectProps<TValue>): JSX.Element {
     }
 
     const handleContainerClick = (event: DivElementClickEvent) => {
+        if (disabled) {
+            return;
+        }
+
         event.stopPropagation();
         setShowOptions((showOptions) => !showOptions);
     };
@@ -183,9 +206,9 @@ export function Select<TValue>(props: SelectProps<TValue>): JSX.Element {
 
     return (
         <StyledSelect>
-            <Container onClick={handleContainerClick}>
+            <Container disabled={disabled} onClick={handleContainerClick}>
                 <ContainerLeft>
-                    {label && <Label>{label}</Label>}
+                    {label && <Label disabled={disabled}>{label}</Label>}
                     <Value>{selected.label}</Value>
                 </ContainerLeft>
                 <ContainerRight>
@@ -193,80 +216,15 @@ export function Select<TValue>(props: SelectProps<TValue>): JSX.Element {
                 </ContainerRight>
             </Container>
             <Options show={showOptions}>
-                {options.map((option) => {
-                    return (
-                        <StyledOption
-                            key={option.value + ""}
-                            onClick={(event) =>
-                                handleOptionClick(option, event)
-                            }
-                        >
-                            {option.label}
-                        </StyledOption>
-                    );
-                })}
+                {options.map((option) => (
+                    <StyledOption
+                        key={option.value + ""}
+                        onClick={(event) => handleOptionClick(option, event)}
+                    >
+                        {option.label}
+                    </StyledOption>
+                ))}
             </Options>
         </StyledSelect>
     );
 }
-
-// export function MultiSelect<TValue>(
-//     props: MultiSelectProps<TValue>
-// ): JSX.Element {
-//     const { options, values, onChange } = props;
-
-//     const [showOptions, setShowOptions] = useState(false);
-
-//     useEffect(() => {
-//         const handleDocumentClick = () => setShowOptions(false);
-
-//         document.addEventListener("click", handleDocumentClick);
-
-//         return () => {
-//             document.removeEventListener("click", handleDocumentClick);
-//         };
-//     }, []);
-
-//     const selecteds = useMemo(() => {
-//         return options.filter((option) => {
-//             return !!values.find((value) => value === option.value);
-//         });
-//     }, [options, values]);
-
-//     const handleSelectedClick = (event: DivElementClickEvent) => {
-//         event.stopPropagation();
-//         setShowOptions((showOptions) => !showOptions);
-//     };
-
-//     const handleOptionClick = (
-//         option: Option<TValue>,
-//         event: LiElementClickEvent
-//     ) => {
-//         onChange(option.value, option, event);
-//     };
-
-//     return (
-//         <StyledSelect>
-//             <Selected onClick={handleSelectedClick}>
-//                 <SelectedLabel>{selected.label}</SelectedLabel>
-//                 <SelectedIcon direction={showOptions ? "up" : "down"}>
-//                     🢓
-//                 </SelectedIcon>
-//             </Selected>
-//             <Options show={showOptions}>
-//                 {options.map((option) => {
-//                     return (
-//                         <StyledOption
-//                             key={option.value + ""}
-//                             onClick={(event) =>
-//                                 handleOptionClick(option, event)
-//                             }
-//                         >
-//                             {option.label}
-//                         </StyledOption>
-//                     );
-//                 })}
-//             </Options>
-//         </StyledSelect>
-//     );
-// }

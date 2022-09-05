@@ -14919,6 +14919,7 @@
 	const colors = {
 	    grey1: "#eeeeee",
 	    grey2: "#f3f3f3",
+	    grey3: "#fafafa",
 	    blue1: "#8383f3",
 	    violet1: "#8383f3",
 	    violet2: "#6161cb",
@@ -16280,15 +16281,25 @@
     font-size: 16px;
 `;
 	const Container = He.div `
-    background-color: white;
     border: 1px solid ${styles$1.colors.grey1};
     border-radius: ${styles$1.borders.radius[0]};
-    cursor: pointer;
     height: ${styles$1.span(6)};
     user-select: none;
     display: flex;
     padding: 0 ${styles$1.span(2)};
     flex-wrap: wrap;
+
+    ${(props) => {
+    if (props.disabled) {
+        return `
+                background-color: ${styles$1.colors.grey3};
+            `;
+    }
+    return `
+            background-color: white;
+            cursor: pointer;
+        `;
+}}
 `;
 	const ContainerLeft = He.div `
     width: calc(100% - ${styles$1.span(4)});
@@ -16309,8 +16320,15 @@
     left: ${styles$1.span(-0.5)};
     position: absolute;
     padding: ${styles$1.span(0.5)};
-    background-color: white;
     max-width: calc(100% + ${styles$1.span(1)});
+    border-radius: ${styles$1.borders.radius[0]};
+
+    ${(props) => {
+    if (props.disabled) {
+        return `background-color: ${styles$1.colors.grey3};`;
+    }
+    return "background-color: white;";
+}}
 `;
 	const Value = He.div `
     text-overflow: ellipsis;
@@ -16369,7 +16387,7 @@
     }
 `;
 	function Select(props) {
-	    const { options, label, value, onChange } = props;
+	    const { disabled = false, label, options, value, onChange } = props;
 	    const [showOptions, setShowOptions] = react.exports.useState(false);
 	    react.exports.useEffect(() => {
 	        const handleDocumentClick = () => setShowOptions(false);
@@ -16383,6 +16401,9 @@
 	        throw new Error(`Unknown value: "${value}"`);
 	    }
 	    const handleContainerClick = (event) => {
+	        if (disabled) {
+	            return;
+	        }
 	        event.stopPropagation();
 	        setShowOptions((showOptions) => !showOptions);
 	    };
@@ -16390,68 +16411,14 @@
 	        onChange(option.value, option, event);
 	    };
 	    return (React$1.createElement(StyledSelect, null,
-	        React$1.createElement(Container, { onClick: handleContainerClick },
+	        React$1.createElement(Container, { disabled: disabled, onClick: handleContainerClick },
 	            React$1.createElement(ContainerLeft, null,
-	                label && React$1.createElement(Label, null, label),
+	                label && React$1.createElement(Label, { disabled: disabled }, label),
 	                React$1.createElement(Value, null, selected.label)),
 	            React$1.createElement(ContainerRight, null,
 	                React$1.createElement(Cursor, { direction: showOptions ? "up" : "down" }, "\uD83E\uDC93"))),
-	        React$1.createElement(Options, { show: showOptions }, options.map((option) => {
-	            return (React$1.createElement(StyledOption, { key: option.value + "", onClick: (event) => handleOptionClick(option, event) }, option.label));
-	        }))));
+	        React$1.createElement(Options, { show: showOptions }, options.map((option) => (React$1.createElement(StyledOption, { key: option.value + "", onClick: (event) => handleOptionClick(option, event) }, option.label))))));
 	}
-	// export function MultiSelect<TValue>(
-	//     props: MultiSelectProps<TValue>
-	// ): JSX.Element {
-	//     const { options, values, onChange } = props;
-	//     const [showOptions, setShowOptions] = useState(false);
-	//     useEffect(() => {
-	//         const handleDocumentClick = () => setShowOptions(false);
-	//         document.addEventListener("click", handleDocumentClick);
-	//         return () => {
-	//             document.removeEventListener("click", handleDocumentClick);
-	//         };
-	//     }, []);
-	//     const selecteds = useMemo(() => {
-	//         return options.filter((option) => {
-	//             return !!values.find((value) => value === option.value);
-	//         });
-	//     }, [options, values]);
-	//     const handleSelectedClick = (event: DivElementClickEvent) => {
-	//         event.stopPropagation();
-	//         setShowOptions((showOptions) => !showOptions);
-	//     };
-	//     const handleOptionClick = (
-	//         option: Option<TValue>,
-	//         event: LiElementClickEvent
-	//     ) => {
-	//         onChange(option.value, option, event);
-	//     };
-	//     return (
-	//         <StyledSelect>
-	//             <Selected onClick={handleSelectedClick}>
-	//                 <SelectedLabel>{selected.label}</SelectedLabel>
-	//                 <SelectedIcon direction={showOptions ? "up" : "down"}>
-	//                     🢓
-	//                 </SelectedIcon>
-	//             </Selected>
-	//             <Options show={showOptions}>
-	//                 {options.map((option) => {
-	//                     return (
-	//                         <StyledOption
-	//                             key={option.value + ""}
-	//                             onClick={(event) =>
-	//                                 handleOptionClick(option, event)
-	//                             }
-	//                         >
-	//                             {option.label}
-	//                         </StyledOption>
-	//                     );
-	//                 })}
-	//             </Options>
-	//         </StyledSelect>
-	//     );
-	// }
 
 	const languagesOptions = [
 	    { label: Language.en, value: Language.en },
@@ -21296,6 +21263,15 @@ function Select<TValue>(props: SelectProps<TValue>): JSX.Element;
 	        React$1.createElement(Section, null,
 	            React$1.createElement(SectionTitle, null, "\u041A\u043E\u043C\u043F\u043E\u043D\u0435\u043D\u0442 Select"),
 	            React$1.createElement(StaticCode, { language: "typescript", code: singleCode$1 }))));
+	};
+
+	const StyledCheckbox = He.div `
+    display: inline-flex;
+`;
+	const Checkbox = ({ checked, label, name, onChange, }) => {
+	    return (React$1.createElement(StyledCheckbox, null,
+	        React$1.createElement("input", { type: "checkbox", id: name, name: name, checked: checked, onChange: (event) => onChange(event.currentTarget.checked) }),
+	        React$1.createElement("label", { htmlFor: name }, label)));
 	};
 
 	var lib$1 = {};
@@ -40250,7 +40226,7 @@ const MyComponent = () => {
     return <Select options={options} value={value} onChange={setValue} />;
 }
 `.trim();
-	const singleCodeScope = { Select, useState: react.exports.useState };
+	const singleCodeScope = { Col, Checkbox, Fragment: react.exports.Fragment, Row, Select, useState: react.exports.useState };
 	const singleCode = `
 const colors = [
     { label: "Red", value: "red" },
@@ -40260,8 +40236,29 @@ const colors = [
 
 function MyComponent() {
     const [color, setColor] = useState("red");
+    const [disabled, setDisabled] = useState(false);
 
-    return <Select options={colors} label="Choose color" value={color} onChange={setColor} />;
+    return (
+        <Row>
+            <Col size={16}>
+                <Select
+                    options={colors}
+                    label="Choose color"
+                    disabled={disabled}
+                    value={color}
+                    onChange={setColor}
+                />
+            </Col>
+            <Col size={4}>
+                <Checkbox
+                    name="disabled"
+                    label="Disabled"
+                    value={disabled}
+                    onChange={setDisabled}
+                />
+            </Col>
+        </Row>
+    );
 }
 
 render(<MyComponent />);
