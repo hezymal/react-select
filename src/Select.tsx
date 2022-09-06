@@ -1,35 +1,30 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, {
+    ChangeEventHandler,
+    FormEventHandler,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 import styled from "styled-components";
 
+import { Options, ClickOptionHandler } from "./inners/Options";
 import { styles } from "./styles";
+import { OptionType } from "./types";
 
 type DivElementClickEvent = React.MouseEvent<HTMLDivElement, MouseEvent>;
 
-type LiElementClickEvent = React.MouseEvent<HTMLLIElement, MouseEvent>;
-
-export interface Option<TValue> {
-    label: string | JSX.Element;
-    value: TValue;
-}
-
 export interface SelectProps<TValue> {
-    options: Option<TValue>[];
+    options: OptionType<TValue>[];
     value: TValue;
     disabled?: boolean;
     label?: string;
-    onChange: (
-        value: TValue,
-        option: Option<TValue>,
-        event: LiElementClickEvent
-    ) => void;
+    noOptionsMessage?: string;
+    onChange: ClickOptionHandler<TValue>;
 }
 
 interface ContainerProps {
     disabled: boolean;
-}
-
-interface OptionsProps {
-    show: boolean;
 }
 
 interface CursorProps {
@@ -74,6 +69,8 @@ const Container = styled.div.withConfig<ContainerProps>({
 const ContainerLeft = styled.div`
     width: calc(100% - ${styles.span(4)});
     position: relative;
+    display: flex;
+    align-items: center;
 `;
 
 const ContainerRight = styled.div`
@@ -110,7 +107,34 @@ const Value = styled.div`
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    line-height: ${styles.span(6, -2)};
+`;
+
+const FilterWrapper = styled.label`
+    display: inline-grid;
+    flex: 1 1 auto;
+    grid-area: 1 / 1 / 2 / 3;
+    grid-template-columns: 0px min-content;
+    margin-left: ${styles.span(1)};
+    min-width: 2px;
+
+    &::after {
+        content: attr(data-value) " ";
+        visibility: hidden;
+        white-space: pre-wrap;
+    }
+
+    &::after,
+    input {
+        font: inherit;
+        width: 100%;
+        min-width: 2px;
+        grid-area: 1 / 2;
+        margin: 0;
+        resize: none;
+        border: none;
+        outline: none;
+        padding: 0;
+    }
 `;
 
 const Cursor = styled.div.withConfig<CursorProps>({
@@ -135,50 +159,25 @@ const Cursor = styled.div.withConfig<CursorProps>({
     }}
 `;
 
-const Options = styled.ul.withConfig<OptionsProps>({
-    shouldForwardProp: (propertyName) => propertyName !== "show",
-})`
-    border: 1px solid ${styles.colors.grey1};
-    border-radius: ${styles.borders.radius[0]};
-    background-color: white;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    position: absolute;
-    top: calc(100% + 1px);
-    left: 0;
-    width: 100%;
-    user-select: none;
-    line-height: ${styles.span(3)};
-
-    ${(props) => {
-        if (!props.show) {
-            return "display: none";
-        }
-
-        return null;
-    }}
-`;
-
-const StyledOption = styled.li`
-    cursor: pointer;
-    padding: ${styles.span(1)} ${styles.span(2)};
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-
-    &:hover {
-        background-color: ${styles.colors.grey2};
-    }
-`;
-
 export function Select<TValue>(props: SelectProps<TValue>): JSX.Element {
-    const { disabled = false, label, options, value, onChange } = props;
+    const {
+        disabled = false,
+        label,
+        noOptionsMessage,
+        options,
+        value,
+        onChange,
+    } = props;
 
+    const filterRef = useRef<HTMLInputElement | null>(null);
+    const [filter, setFilter] = useState("");
     const [showOptions, setShowOptions] = useState(false);
 
     useEffect(() => {
-        const handleDocumentClick = () => setShowOptions(false);
+        const handleDocumentClick = () => {
+            setShowOptions(false);
+            setFilter("");
+        };
 
         document.addEventListener("click", handleDocumentClick);
 
@@ -187,12 +186,20 @@ export function Select<TValue>(props: SelectProps<TValue>): JSX.Element {
         };
     }, []);
 
-    const selected = useMemo(
+    const filteredOptions = useMemo(() => {
+        if (!filter) {
+            return options;
+        }
+
+        return options.filter((option) => option.label.indexOf(filter) !== -1);
+    }, [options, filter]);
+
+    const currentValue = useMemo(
         () => options.find((option) => option.value === value),
         [options, value]
     );
 
-    if (selected === undefined) {
+    if (currentValue === undefined) {
         throw new Error(`Unknown value: "${value}"`);
     }
 
@@ -202,14 +209,32 @@ export function Select<TValue>(props: SelectProps<TValue>): JSX.Element {
         }
 
         event.stopPropagation();
-        setShowOptions((showOptions) => !showOptions);
+        setShowOptions((showOptions) => {
+            if (showOptions) {
+                return false;
+            }
+
+            filterRef.current!.focus();
+            return true;
+        });
     };
 
-    const handleOptionClick = (
-        option: Option<TValue>,
-        event: LiElementClickEvent
+    const handleFilterChange: ChangeEventHandler<HTMLInputElement> = (
+        event
     ) => {
-        onChange(option.value, option, event);
+        setFilter(event.currentTarget.value);
+    };
+
+    const handleFilterInput: FormEventHandler<HTMLInputElement> = (event) => {
+        // for details see: https://css-tricks.com/auto-growing-inputs-textareas/#aa-other-ideas
+
+        const input = event.currentTarget;
+        const wrapper = input.parentNode as HTMLDivElement;
+        wrapper.dataset.value = input.value;
+    };
+
+    const handleFilterFocus = () => {
+        setShowOptions(true);
     };
 
     return (
@@ -217,22 +242,27 @@ export function Select<TValue>(props: SelectProps<TValue>): JSX.Element {
             <Container disabled={disabled} onClick={handleContainerClick}>
                 <ContainerLeft>
                     {label && <Label disabled={disabled}>{label}</Label>}
-                    <Value>{selected.label}</Value>
+                    <Value>{currentValue.label}</Value>
+                    <FilterWrapper>
+                        <input
+                            ref={filterRef}
+                            value={filter}
+                            onChange={handleFilterChange}
+                            onInput={handleFilterInput}
+                            onFocus={handleFilterFocus}
+                        />
+                    </FilterWrapper>
                 </ContainerLeft>
                 <ContainerRight>
                     <Cursor direction={showOptions ? "up" : "down"}>🢓</Cursor>
                 </ContainerRight>
             </Container>
-            <Options show={showOptions}>
-                {options.map((option) => (
-                    <StyledOption
-                        key={option.value + ""}
-                        onClick={(event) => handleOptionClick(option, event)}
-                    >
-                        {option.label}
-                    </StyledOption>
-                ))}
-            </Options>
+            <Options
+                noOptionsMessage={noOptionsMessage}
+                options={filteredOptions}
+                show={showOptions}
+                onOptionClick={onChange}
+            />
         </StyledSelect>
     );
 }

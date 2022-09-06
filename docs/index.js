@@ -16275,92 +16275,8 @@
 	    return translate;
 	};
 
-	const StyledSelect = He.div `
-    box-sizing: border-box;
-    position: relative;
-    font-size: 16px;
-`;
-	const Container = He.div.withConfig({
-	    shouldForwardProp: (propertyName) => propertyName !== "disabled",
-	}) `
-    border: 1px solid ${styles$1.colors.grey1};
-    border-radius: ${styles$1.borders.radius[0]};
-    height: ${styles$1.span(6)};
-    user-select: none;
-    display: flex;
-    padding: 0 ${styles$1.span(2)};
-    flex-wrap: wrap;
-
-    ${(props) => {
-    if (props.disabled) {
-        return `
-                background-color: ${styles$1.colors.grey3};
-            `;
-    }
-    return `
-            background-color: white;
-            cursor: pointer;
-        `;
-}}
-`;
-	const ContainerLeft = He.div `
-    width: calc(100% - ${styles$1.span(4)});
-    position: relative;
-`;
-	const ContainerRight = He.div `
-    width: ${styles$1.span(4)};
-`;
-	const Label = He.label.withConfig({
-	    shouldForwardProp: (propertyName) => propertyName !== "disabled",
-	}) `
-    display: inline-block;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-    font-size: 12px;
-    height: ${styles$1.span(3)};
-    line-height: ${styles$1.span(2)};
-    top: ${styles$1.span(-1.5, -1)};
-    left: ${styles$1.span(-0.5)};
-    position: absolute;
-    padding: ${styles$1.span(0.5)};
-    max-width: calc(100% + ${styles$1.span(1)});
-    border-radius: ${styles$1.borders.radius[0]};
-
-    ${(props) => {
-    if (props.disabled) {
-        return `background-color: ${styles$1.colors.grey3};`;
-    }
-    return "background-color: white;";
-}}
-`;
-	const Value = He.div `
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-    line-height: ${styles$1.span(6, -2)};
-`;
-	const Cursor = He.div.withConfig({
-	    shouldForwardProp: (propertyName) => propertyName !== "direction",
-	}) `
-    height: ${styles$1.span(3)};
-    text-align: center;
-    font-size: 28px;
-
-    ${(props) => {
-    if (props.direction === "up") {
-        return `
-                transform: rotate(180deg) translate(0, ${styles$1.span(0)});
-                padding-right: ${styles$1.span(1)};
-            `;
-    }
-    return `
-            transform: translate(0, ${styles$1.span(2.5)});
-            padding-left: ${styles$1.span(1)};
-        `;
-}}
-`;
-	const Options = He.ul.withConfig({
+	const NO_OPTIONS_MESSAGE = "No options";
+	const StyledOptions = He.ul.withConfig({
 	    shouldForwardProp: (propertyName) => propertyName !== "show",
 	}) `
     border: 1px solid ${styles$1.colors.grey1};
@@ -16394,18 +16310,157 @@
         background-color: ${styles$1.colors.grey2};
     }
 `;
+	const NoOptionMessage = He.li `
+    padding: ${styles$1.span(1)} ${styles$1.span(2)};
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+`;
+	function Options(props) {
+	    const { noOptionsMessage, options, show, onOptionClick } = props;
+	    const handleNoOptionMessageClick = (event) => {
+	        event.preventDefault();
+	        event.stopPropagation();
+	    };
+	    return (React$1.createElement(StyledOptions, { show: show }, options.length > 0 ? (options.map((option) => (React$1.createElement(StyledOption, { key: option.value + "", onClick: (event) => onOptionClick(option.value, option, event) }, option.label)))) : (React$1.createElement(NoOptionMessage, { onClick: handleNoOptionMessageClick }, noOptionsMessage || NO_OPTIONS_MESSAGE))));
+	}
+
+	const StyledSelect = He.div `
+    box-sizing: border-box;
+    position: relative;
+    font-size: 16px;
+`;
+	const Container = He.div.withConfig({
+	    shouldForwardProp: (propertyName) => propertyName !== "disabled",
+	}) `
+    border: 1px solid ${styles$1.colors.grey1};
+    border-radius: ${styles$1.borders.radius[0]};
+    height: ${styles$1.span(6)};
+    user-select: none;
+    display: flex;
+    padding: 0 ${styles$1.span(2)};
+    flex-wrap: wrap;
+
+    ${(props) => {
+    if (props.disabled) {
+        return `
+                background-color: ${styles$1.colors.grey3};
+            `;
+    }
+    return `
+            background-color: white;
+            cursor: pointer;
+        `;
+}}
+`;
+	const ContainerLeft = He.div `
+    width: calc(100% - ${styles$1.span(4)});
+    position: relative;
+    display: flex;
+    align-items: center;
+`;
+	const ContainerRight = He.div `
+    width: ${styles$1.span(4)};
+`;
+	const Label = He.label.withConfig({
+	    shouldForwardProp: (propertyName) => propertyName !== "disabled",
+	}) `
+    display: inline-block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 12px;
+    height: ${styles$1.span(3)};
+    line-height: ${styles$1.span(2)};
+    top: ${styles$1.span(-1.5, -1)};
+    left: ${styles$1.span(-0.5)};
+    position: absolute;
+    padding: ${styles$1.span(0.5)};
+    max-width: calc(100% + ${styles$1.span(1)});
+    border-radius: ${styles$1.borders.radius[0]};
+
+    ${(props) => {
+    if (props.disabled) {
+        return `background-color: ${styles$1.colors.grey3};`;
+    }
+    return "background-color: white;";
+}}
+`;
+	const Value = He.div `
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+`;
+	const FilterWrapper = He.label `
+    display: inline-grid;
+    flex: 1 1 auto;
+    grid-area: 1 / 1 / 2 / 3;
+    grid-template-columns: 0px min-content;
+    margin-left: ${styles$1.span(1)};
+    min-width: 2px;
+
+    &::after {
+        content: attr(data-value) " ";
+        visibility: hidden;
+        white-space: pre-wrap;
+    }
+
+    &::after,
+    input {
+        font: inherit;
+        width: 100%;
+        min-width: 2px;
+        grid-area: 1 / 2;
+        margin: 0;
+        resize: none;
+        border: none;
+        outline: none;
+        padding: 0;
+    }
+`;
+	const Cursor = He.div.withConfig({
+	    shouldForwardProp: (propertyName) => propertyName !== "direction",
+	}) `
+    height: ${styles$1.span(3)};
+    text-align: center;
+    font-size: 28px;
+
+    ${(props) => {
+    if (props.direction === "up") {
+        return `
+                transform: rotate(180deg) translate(0, ${styles$1.span(0)});
+                padding-right: ${styles$1.span(1)};
+            `;
+    }
+    return `
+            transform: translate(0, ${styles$1.span(2.5)});
+            padding-left: ${styles$1.span(1)};
+        `;
+}}
+`;
 	function Select(props) {
-	    const { disabled = false, label, options, value, onChange } = props;
+	    const { disabled = false, label, noOptionsMessage, options, value, onChange, } = props;
+	    const filterRef = react.exports.useRef(null);
+	    const [filter, setFilter] = react.exports.useState("");
 	    const [showOptions, setShowOptions] = react.exports.useState(false);
 	    react.exports.useEffect(() => {
-	        const handleDocumentClick = () => setShowOptions(false);
+	        const handleDocumentClick = () => {
+	            setShowOptions(false);
+	            setFilter("");
+	        };
 	        document.addEventListener("click", handleDocumentClick);
 	        return () => {
 	            document.removeEventListener("click", handleDocumentClick);
 	        };
 	    }, []);
-	    const selected = react.exports.useMemo(() => options.find((option) => option.value === value), [options, value]);
-	    if (selected === undefined) {
+	    const filteredOptions = react.exports.useMemo(() => {
+	        if (!filter) {
+	            return options;
+	        }
+	        return options.filter((option) => option.label.indexOf(filter) !== -1);
+	    }, [options, filter]);
+	    const currentValue = react.exports.useMemo(() => options.find((option) => option.value === value), [options, value]);
+	    if (currentValue === undefined) {
 	        throw new Error(`Unknown value: "${value}"`);
 	    }
 	    const handleContainerClick = (event) => {
@@ -16413,19 +16468,36 @@
 	            return;
 	        }
 	        event.stopPropagation();
-	        setShowOptions((showOptions) => !showOptions);
+	        setShowOptions((showOptions) => {
+	            if (showOptions) {
+	                return false;
+	            }
+	            filterRef.current.focus();
+	            return true;
+	        });
 	    };
-	    const handleOptionClick = (option, event) => {
-	        onChange(option.value, option, event);
+	    const handleFilterChange = (event) => {
+	        setFilter(event.currentTarget.value);
+	    };
+	    const handleFilterInput = (event) => {
+	        // for details see: https://css-tricks.com/auto-growing-inputs-textareas/#aa-other-ideas
+	        const input = event.currentTarget;
+	        const wrapper = input.parentNode;
+	        wrapper.dataset.value = input.value;
+	    };
+	    const handleFilterFocus = () => {
+	        setShowOptions(true);
 	    };
 	    return (React$1.createElement(StyledSelect, null,
 	        React$1.createElement(Container, { disabled: disabled, onClick: handleContainerClick },
 	            React$1.createElement(ContainerLeft, null,
 	                label && React$1.createElement(Label, { disabled: disabled }, label),
-	                React$1.createElement(Value, null, selected.label)),
+	                React$1.createElement(Value, null, currentValue.label),
+	                React$1.createElement(FilterWrapper, null,
+	                    React$1.createElement("input", { ref: filterRef, value: filter, onChange: handleFilterChange, onInput: handleFilterInput, onFocus: handleFilterFocus }))),
 	            React$1.createElement(ContainerRight, null,
 	                React$1.createElement(Cursor, { direction: showOptions ? "up" : "down" }, "\uD83E\uDC93"))),
-	        React$1.createElement(Options, { show: showOptions }, options.map((option) => (React$1.createElement(StyledOption, { key: option.value + "", onClick: (event) => handleOptionClick(option, event) }, option.label))))));
+	        React$1.createElement(Options, { noOptionsMessage: noOptionsMessage, options: filteredOptions, show: showOptions, onOptionClick: onChange })));
 	}
 
 	const languagesOptions = [

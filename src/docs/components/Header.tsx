@@ -5,14 +5,14 @@ import styled from "styled-components";
 import { APP_TITLE, REPOSITORY_URL } from "docs/constants";
 import { Language } from "docs/i18n";
 import { styles } from "styles";
-import { Option, Select } from "Select";
+import { Select, OptionType } from "index";
 
 interface Props {
     language: Language;
     onLanguageChange: (language: Language) => void;
 }
 
-const languagesOptions: Option<Language>[] = [
+const languagesOptions: OptionType<Language>[] = [
     { label: Language.en, value: Language.en },
     { label: Language.ru, value: Language.ru },
 ];
