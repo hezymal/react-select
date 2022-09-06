@@ -1,6 +1,8 @@
 import React, {
     ChangeEventHandler,
     FormEventHandler,
+    FocusEventHandler,
+    MouseEventHandler,
     useEffect,
     useMemo,
     useRef,
@@ -109,7 +111,7 @@ const Value = styled.div`
     white-space: nowrap;
 `;
 
-const FilterWrapper = styled.label`
+const FilterWrapper = styled.div`
     display: inline-grid;
     flex: 1 1 auto;
     grid-area: 1 / 1 / 2 / 3;
@@ -233,8 +235,16 @@ export function Select<TValue>(props: SelectProps<TValue>): JSX.Element {
         wrapper.dataset.value = input.value;
     };
 
-    const handleFilterFocus = () => {
+    const handleFilterFocus: FocusEventHandler<HTMLInputElement> = (event) => {
+        if (disabled) {
+            return;
+        }
+
         setShowOptions(true);
+    };
+
+    const handleFilterClick: MouseEventHandler<HTMLInputElement> = (event) => {
+        event.stopPropagation();
     };
 
     return (
@@ -250,6 +260,7 @@ export function Select<TValue>(props: SelectProps<TValue>): JSX.Element {
                             onChange={handleFilterChange}
                             onInput={handleFilterInput}
                             onFocus={handleFilterFocus}
+                            onClick={handleFilterClick}
                         />
                     </FilterWrapper>
                 </ContainerLeft>

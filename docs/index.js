@@ -16391,7 +16391,7 @@
     overflow: hidden;
     white-space: nowrap;
 `;
-	const FilterWrapper = He.label `
+	const FilterWrapper = He.div `
     display: inline-grid;
     flex: 1 1 auto;
     grid-area: 1 / 1 / 2 / 3;
@@ -16485,8 +16485,14 @@
 	        const wrapper = input.parentNode;
 	        wrapper.dataset.value = input.value;
 	    };
-	    const handleFilterFocus = () => {
+	    const handleFilterFocus = (event) => {
+	        if (disabled) {
+	            return;
+	        }
 	        setShowOptions(true);
+	    };
+	    const handleFilterClick = (event) => {
+	        event.stopPropagation();
 	    };
 	    return (React$1.createElement(StyledSelect, null,
 	        React$1.createElement(Container, { disabled: disabled, onClick: handleContainerClick },
@@ -16494,7 +16500,7 @@
 	                label && React$1.createElement(Label, { disabled: disabled }, label),
 	                React$1.createElement(Value, null, currentValue.label),
 	                React$1.createElement(FilterWrapper, null,
-	                    React$1.createElement("input", { ref: filterRef, value: filter, onChange: handleFilterChange, onInput: handleFilterInput, onFocus: handleFilterFocus }))),
+	                    React$1.createElement("input", { ref: filterRef, value: filter, onChange: handleFilterChange, onInput: handleFilterInput, onFocus: handleFilterFocus, onClick: handleFilterClick }))),
 	            React$1.createElement(ContainerRight, null,
 	                React$1.createElement(Cursor, { direction: showOptions ? "up" : "down" }, "\uD83E\uDC93"))),
 	        React$1.createElement(Options, { noOptionsMessage: noOptionsMessage, options: filteredOptions, show: showOptions, onOptionClick: onChange })));
