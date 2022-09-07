@@ -10,6 +10,7 @@ import React, {
 } from "react";
 import styled from "styled-components";
 
+import { Filter } from "./inners/Filter";
 import { Options, ClickOptionHandler } from "./inners/Options";
 import { styles } from "./styles";
 import { OptionType } from "./types";
@@ -227,24 +228,12 @@ export function Select<TValue>(props: SelectProps<TValue>): JSX.Element {
         setFilter(event.currentTarget.value);
     };
 
-    const handleFilterInput: FormEventHandler<HTMLInputElement> = (event) => {
-        // for details see: https://css-tricks.com/auto-growing-inputs-textareas/#aa-other-ideas
-
-        const input = event.currentTarget;
-        const wrapper = input.parentNode as HTMLDivElement;
-        wrapper.dataset.value = input.value;
-    };
-
-    const handleFilterFocus: FocusEventHandler<HTMLInputElement> = (event) => {
+    const handleFilterFocus: FocusEventHandler<HTMLInputElement> = () => {
         if (disabled) {
             return;
         }
 
         setShowOptions(true);
-    };
-
-    const handleFilterClick: MouseEventHandler<HTMLInputElement> = (event) => {
-        event.stopPropagation();
     };
 
     return (
@@ -253,16 +242,12 @@ export function Select<TValue>(props: SelectProps<TValue>): JSX.Element {
                 <ContainerLeft>
                     {label && <Label disabled={disabled}>{label}</Label>}
                     <Value>{currentValue.label}</Value>
-                    <FilterWrapper>
-                        <input
-                            ref={filterRef}
-                            value={filter}
-                            onChange={handleFilterChange}
-                            onInput={handleFilterInput}
-                            onFocus={handleFilterFocus}
-                            onClick={handleFilterClick}
-                        />
-                    </FilterWrapper>
+                    <Filter
+                        ref={filterRef}
+                        value={filter}
+                        onChange={handleFilterChange}
+                        onFocus={handleFilterFocus}
+                    />
                 </ContainerLeft>
                 <ContainerRight>
                     <Cursor direction={showOptions ? "up" : "down"}>🢓</Cursor>

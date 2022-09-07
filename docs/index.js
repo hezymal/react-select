@@ -16275,6 +16275,47 @@
 	    return translate;
 	};
 
+	const StyledFilter = He.div `
+    display: inline-grid;
+    flex: 1 1 auto;
+    grid-area: 1 / 1 / 2 / 3;
+    grid-template-columns: 0px min-content;
+    margin-left: ${styles$1.span(1)};
+    min-width: 2px;
+
+    &::after {
+        content: attr(data-value) " ";
+        visibility: hidden;
+        white-space: pre-wrap;
+    }
+
+    &::after,
+    input {
+        font: inherit;
+        width: 100%;
+        min-width: 2px;
+        grid-area: 1 / 2;
+        margin: 0;
+        resize: none;
+        border: none;
+        outline: none;
+        padding: 0;
+    }
+`;
+	const Filter = react.exports.forwardRef(({ value, onChange, onFocus }, ref) => {
+	    const handleInput = (event) => {
+	        // for details see: https://css-tricks.com/auto-growing-inputs-textareas/#aa-other-ideas
+	        const input = event.currentTarget;
+	        const wrapper = input.parentNode;
+	        wrapper.dataset.value = input.value;
+	    };
+	    const handleClick = (event) => {
+	        event.stopPropagation();
+	    };
+	    return (React$1.createElement(StyledFilter, null,
+	        React$1.createElement("input", { ref: ref, value: value, onChange: onChange, onInput: handleInput, onFocus: onFocus, onClick: handleClick })));
+	});
+
 	const NO_OPTIONS_MESSAGE = "No options";
 	const StyledOptions = He.ul.withConfig({
 	    shouldForwardProp: (propertyName) => propertyName !== "show",
@@ -16391,7 +16432,7 @@
     overflow: hidden;
     white-space: nowrap;
 `;
-	const FilterWrapper = He.div `
+	He.div `
     display: inline-grid;
     flex: 1 1 auto;
     grid-area: 1 / 1 / 2 / 3;
@@ -16479,28 +16520,18 @@
 	    const handleFilterChange = (event) => {
 	        setFilter(event.currentTarget.value);
 	    };
-	    const handleFilterInput = (event) => {
-	        // for details see: https://css-tricks.com/auto-growing-inputs-textareas/#aa-other-ideas
-	        const input = event.currentTarget;
-	        const wrapper = input.parentNode;
-	        wrapper.dataset.value = input.value;
-	    };
-	    const handleFilterFocus = (event) => {
+	    const handleFilterFocus = () => {
 	        if (disabled) {
 	            return;
 	        }
 	        setShowOptions(true);
-	    };
-	    const handleFilterClick = (event) => {
-	        event.stopPropagation();
 	    };
 	    return (React$1.createElement(StyledSelect, null,
 	        React$1.createElement(Container, { disabled: disabled, onClick: handleContainerClick },
 	            React$1.createElement(ContainerLeft, null,
 	                label && React$1.createElement(Label, { disabled: disabled }, label),
 	                React$1.createElement(Value, null, currentValue.label),
-	                React$1.createElement(FilterWrapper, null,
-	                    React$1.createElement("input", { ref: filterRef, value: filter, onChange: handleFilterChange, onInput: handleFilterInput, onFocus: handleFilterFocus, onClick: handleFilterClick }))),
+	                React$1.createElement(Filter, { ref: filterRef, value: filter, onChange: handleFilterChange, onFocus: handleFilterFocus })),
 	            React$1.createElement(ContainerRight, null,
 	                React$1.createElement(Cursor, { direction: showOptions ? "up" : "down" }, "\uD83E\uDC93"))),
 	        React$1.createElement(Options, { noOptionsMessage: noOptionsMessage, options: filteredOptions, show: showOptions, onOptionClick: onChange })));
