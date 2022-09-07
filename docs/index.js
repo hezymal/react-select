@@ -16275,6 +16275,27 @@
 	    return translate;
 	};
 
+	const Cursor = He.div.withConfig({
+	    shouldForwardProp: (propertyName) => propertyName !== "direction",
+	}) `
+    height: ${styles$1.span(3)};
+    text-align: center;
+    font-size: 28px;
+
+    ${(props) => {
+    if (props.direction === "up") {
+        return `
+                transform: rotate(180deg) translate(0, ${styles$1.span(0)});
+                padding-right: ${styles$1.span(1)};
+            `;
+    }
+    return `
+            transform: translate(0, ${styles$1.span(2.5)});
+            padding-left: ${styles$1.span(1)};
+        `;
+}}
+`;
+
 	const StyledFilter = He.div `
     display: inline-grid;
     flex: 1 1 auto;
@@ -16427,57 +16448,10 @@
     return "background-color: white;";
 }}
 `;
-	const Value = He.div `
+	const CurrentValue = He.div `
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-`;
-	He.div `
-    display: inline-grid;
-    flex: 1 1 auto;
-    grid-area: 1 / 1 / 2 / 3;
-    grid-template-columns: 0px min-content;
-    margin-left: ${styles$1.span(1)};
-    min-width: 2px;
-
-    &::after {
-        content: attr(data-value) " ";
-        visibility: hidden;
-        white-space: pre-wrap;
-    }
-
-    &::after,
-    input {
-        font: inherit;
-        width: 100%;
-        min-width: 2px;
-        grid-area: 1 / 2;
-        margin: 0;
-        resize: none;
-        border: none;
-        outline: none;
-        padding: 0;
-    }
-`;
-	const Cursor = He.div.withConfig({
-	    shouldForwardProp: (propertyName) => propertyName !== "direction",
-	}) `
-    height: ${styles$1.span(3)};
-    text-align: center;
-    font-size: 28px;
-
-    ${(props) => {
-    if (props.direction === "up") {
-        return `
-                transform: rotate(180deg) translate(0, ${styles$1.span(0)});
-                padding-right: ${styles$1.span(1)};
-            `;
-    }
-    return `
-            transform: translate(0, ${styles$1.span(2.5)});
-            padding-left: ${styles$1.span(1)};
-        `;
-}}
 `;
 	function Select(props) {
 	    const { disabled = false, label, noOptionsMessage, options, value, onChange, } = props;
@@ -16494,16 +16468,16 @@
 	            document.removeEventListener("click", handleDocumentClick);
 	        };
 	    }, []);
+	    const currentValue = react.exports.useMemo(() => options.find((option) => option.value === value), [options, value]);
+	    if (currentValue === undefined) {
+	        throw new Error(`Unknown value: "${value}"`);
+	    }
 	    const filteredOptions = react.exports.useMemo(() => {
 	        if (!filter) {
 	            return options;
 	        }
 	        return options.filter((option) => option.label.indexOf(filter) !== -1);
 	    }, [options, filter]);
-	    const currentValue = react.exports.useMemo(() => options.find((option) => option.value === value), [options, value]);
-	    if (currentValue === undefined) {
-	        throw new Error(`Unknown value: "${value}"`);
-	    }
 	    const handleContainerClick = (event) => {
 	        if (disabled) {
 	            return;
@@ -16530,7 +16504,7 @@
 	        React$1.createElement(Container, { disabled: disabled, onClick: handleContainerClick },
 	            React$1.createElement(ContainerLeft, null,
 	                label && React$1.createElement(Label, { disabled: disabled }, label),
-	                React$1.createElement(Value, null, currentValue.label),
+	                React$1.createElement(CurrentValue, null, currentValue.label),
 	                React$1.createElement(Filter, { ref: filterRef, value: filter, onChange: handleFilterChange, onFocus: handleFilterFocus })),
 	            React$1.createElement(ContainerRight, null,
 	                React$1.createElement(Cursor, { direction: showOptions ? "up" : "down" }, "\uD83E\uDC93"))),

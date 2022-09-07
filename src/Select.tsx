@@ -1,6 +1,5 @@
 import React, {
     ChangeEventHandler,
-    FormEventHandler,
     FocusEventHandler,
     MouseEventHandler,
     useEffect,
@@ -10,12 +9,11 @@ import React, {
 } from "react";
 import styled from "styled-components";
 
+import { Cursor } from "./inners/Cursor";
 import { Filter } from "./inners/Filter";
 import { Options, ClickOptionHandler } from "./inners/Options";
 import { styles } from "./styles";
 import { OptionType } from "./types";
-
-type DivElementClickEvent = React.MouseEvent<HTMLDivElement, MouseEvent>;
 
 export interface SelectProps<TValue> {
     options: OptionType<TValue>[];
@@ -28,10 +26,6 @@ export interface SelectProps<TValue> {
 
 interface ContainerProps {
     disabled: boolean;
-}
-
-interface CursorProps {
-    direction: "up" | "down";
 }
 
 interface LabelProps {
@@ -106,60 +100,10 @@ const Label = styled.label.withConfig<LabelProps>({
     }}
 `;
 
-const Value = styled.div`
+const CurrentValue = styled.div`
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-`;
-
-const FilterWrapper = styled.div`
-    display: inline-grid;
-    flex: 1 1 auto;
-    grid-area: 1 / 1 / 2 / 3;
-    grid-template-columns: 0px min-content;
-    margin-left: ${styles.span(1)};
-    min-width: 2px;
-
-    &::after {
-        content: attr(data-value) " ";
-        visibility: hidden;
-        white-space: pre-wrap;
-    }
-
-    &::after,
-    input {
-        font: inherit;
-        width: 100%;
-        min-width: 2px;
-        grid-area: 1 / 2;
-        margin: 0;
-        resize: none;
-        border: none;
-        outline: none;
-        padding: 0;
-    }
-`;
-
-const Cursor = styled.div.withConfig<CursorProps>({
-    shouldForwardProp: (propertyName) => propertyName !== "direction",
-})`
-    height: ${styles.span(3)};
-    text-align: center;
-    font-size: 28px;
-
-    ${(props) => {
-        if (props.direction === "up") {
-            return `
-                transform: rotate(180deg) translate(0, ${styles.span(0)});
-                padding-right: ${styles.span(1)};
-            `;
-        }
-
-        return `
-            transform: translate(0, ${styles.span(2.5)});
-            padding-left: ${styles.span(1)};
-        `;
-    }}
 `;
 
 export function Select<TValue>(props: SelectProps<TValue>): JSX.Element {
@@ -189,14 +133,6 @@ export function Select<TValue>(props: SelectProps<TValue>): JSX.Element {
         };
     }, []);
 
-    const filteredOptions = useMemo(() => {
-        if (!filter) {
-            return options;
-        }
-
-        return options.filter((option) => option.label.indexOf(filter) !== -1);
-    }, [options, filter]);
-
     const currentValue = useMemo(
         () => options.find((option) => option.value === value),
         [options, value]
@@ -206,7 +142,15 @@ export function Select<TValue>(props: SelectProps<TValue>): JSX.Element {
         throw new Error(`Unknown value: "${value}"`);
     }
 
-    const handleContainerClick = (event: DivElementClickEvent) => {
+    const filteredOptions = useMemo(() => {
+        if (!filter) {
+            return options;
+        }
+
+        return options.filter((option) => option.label.indexOf(filter) !== -1);
+    }, [options, filter]);
+
+    const handleContainerClick: MouseEventHandler<HTMLDivElement> = (event) => {
         if (disabled) {
             return;
         }
@@ -241,7 +185,7 @@ export function Select<TValue>(props: SelectProps<TValue>): JSX.Element {
             <Container disabled={disabled} onClick={handleContainerClick}>
                 <ContainerLeft>
                     {label && <Label disabled={disabled}>{label}</Label>}
-                    <Value>{currentValue.label}</Value>
+                    <CurrentValue>{currentValue.label}</CurrentValue>
                     <Filter
                         ref={filterRef}
                         value={filter}
