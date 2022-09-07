@@ -1,3 +1,4 @@
+import React, { FC } from "react";
 import styled from "styled-components";
 
 import { styles } from "../styles";
@@ -6,7 +7,7 @@ interface Props {
     direction: "up" | "down";
 }
 
-export const Cursor = styled.div.withConfig<Props>({
+const StyledCursor = styled.div.withConfig<Props>({
     shouldForwardProp: (propertyName) => propertyName !== "direction",
 })`
     height: ${styles.span(3)};
@@ -27,3 +28,7 @@ export const Cursor = styled.div.withConfig<Props>({
         `;
     }}
 `;
+
+export const Cursor: FC<Props> = ({ direction }) => (
+    <StyledCursor direction={direction}>🢓</StyledCursor>
+);

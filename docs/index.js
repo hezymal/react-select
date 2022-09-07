@@ -16275,7 +16275,7 @@
 	    return translate;
 	};
 
-	const Cursor = He.div.withConfig({
+	const StyledCursor = He.div.withConfig({
 	    shouldForwardProp: (propertyName) => propertyName !== "direction",
 	}) `
     height: ${styles$1.span(3)};
@@ -16295,6 +16295,7 @@
         `;
 }}
 `;
+	const Cursor = ({ direction }) => (React$1.createElement(StyledCursor, { direction: direction }, "\uD83E\uDC93"));
 
 	const StyledFilter = He.div `
     display: inline-grid;
@@ -16507,7 +16508,7 @@
 	                React$1.createElement(CurrentValue, null, currentValue.label),
 	                React$1.createElement(Filter, { ref: filterRef, value: filter, onChange: handleFilterChange, onFocus: handleFilterFocus })),
 	            React$1.createElement(ContainerRight, null,
-	                React$1.createElement(Cursor, { direction: showOptions ? "up" : "down" }, "\uD83E\uDC93"))),
+	                React$1.createElement(Cursor, { direction: showOptions ? "up" : "down" }))),
 	        React$1.createElement(Options, { noOptionsMessage: noOptionsMessage, options: filteredOptions, show: showOptions, onOptionClick: onChange })));
 	}
 

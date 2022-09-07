@@ -194,7 +194,7 @@ export function Select<TValue>(props: SelectProps<TValue>): JSX.Element {
                     />
                 </ContainerLeft>
                 <ContainerRight>
-                    <Cursor direction={showOptions ? "up" : "down"}>🢓</Cursor>
+                    <Cursor direction={showOptions ? "up" : "down"} />
                 </ContainerRight>
             </Container>
             <Options
