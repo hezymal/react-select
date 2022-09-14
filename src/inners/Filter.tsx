@@ -41,6 +41,10 @@ const StyledFilter = styled.div`
         outline: none;
         padding: 0;
     }
+
+    input {
+        background-color: transparent;
+    }
 `;
 
 export const Filter = forwardRef<HTMLInputElement, Props>(

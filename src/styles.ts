@@ -6,6 +6,7 @@ export const colors = {
     grey1: "#eeeeee",
     grey2: "#f3f3f3",
     grey3: "#fafafa",
+    grey4: "#949494",
     blue1: "#8383f3",
     violet1: "#8383f3",
     violet2: "#6161cb",

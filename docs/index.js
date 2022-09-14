@@ -14920,6 +14920,7 @@
 	    grey1: "#eeeeee",
 	    grey2: "#f3f3f3",
 	    grey3: "#fafafa",
+	    grey4: "#949494",
 	    blue1: "#8383f3",
 	    violet1: "#8383f3",
 	    violet2: "#6161cb",
@@ -16275,27 +16276,19 @@
 	    return translate;
 	};
 
-	const StyledCursor = He.div.withConfig({
-	    shouldForwardProp: (propertyName) => propertyName !== "direction",
-	}) `
-    height: ${styles$1.span(3)};
+	const StyledButton = He.button `
+    display: block;
+    height: ${styles$1.span(4)};
     text-align: center;
-    font-size: 28px;
-
-    ${(props) => {
-    if (props.direction === "up") {
-        return `
-                transform: rotate(180deg) translate(0, ${styles$1.span(0)});
-                padding-right: ${styles$1.span(1)};
-            `;
-    }
-    return `
-            transform: translate(0, ${styles$1.span(2.5)});
-            padding-left: ${styles$1.span(1)};
-        `;
-}}
+    font-size: 14px;
+    font-weight: 700;
+    border: none;
+    background-color: transparent;
+    width: ${styles$1.span(4)};
+    padding: 0;
+    cursor: pointer;
 `;
-	const Cursor = ({ direction }) => (React$1.createElement(StyledCursor, { direction: direction }, "\uD83E\uDC93"));
+	const ClearButton = ({ className, onClick }) => (React$1.createElement(StyledButton, { className: className, onClick: onClick }, "\u2A09"));
 
 	const StyledFilter = He.div `
     display: inline-grid;
@@ -16322,6 +16315,10 @@
         border: none;
         outline: none;
         padding: 0;
+    }
+
+    input {
+        background-color: transparent;
     }
 `;
 	const Filter = react.exports.forwardRef(({ value, onChange, onFocus }, ref) => {
@@ -16388,6 +16385,38 @@
 	    return (React$1.createElement(StyledOptions, { show: show }, options.length > 0 ? (options.map((option) => (React$1.createElement(StyledOption, { key: option.value + "", onClick: (event) => onOptionClick(option.value, option, event) }, option.label)))) : (React$1.createElement(NoOptionMessage, { onClick: handleNoOptionMessageClick }, noOptionsMessage || NO_OPTIONS_MESSAGE))));
 	}
 
+	const StyledToggleButton$1 = He.button `
+    display: block;
+    height: ${styles$1.span(4)};
+    width: ${styles$1.span(4)};
+    border: none;
+    background-color: transparent;
+    padding: 0;
+    cursor: pointer;
+`;
+	const Icon = He.span.withConfig({
+	    shouldForwardProp: (propertyName) => propertyName !== "direction",
+	}) `
+    display: block;
+    height: ${styles$1.span(4)};
+    width: ${styles$1.span(4)};
+    text-align: center;
+    font-size: 28px;
+
+    ${(props) => {
+    if (props.direction === "up") {
+        return `
+                transform: rotate(180deg) translate(0, 6px);
+            `;
+    }
+    return `
+            transform: rotate(0deg) translate(0, 6px);
+        `;
+}}
+`;
+	const ToggleButton = ({ className, direction }) => (React$1.createElement(StyledToggleButton$1, { className: className },
+	    React$1.createElement(Icon, { direction: direction }, "\uD83E\uDC93")));
+
 	const StyledSelect = He.div `
     box-sizing: border-box;
     position: relative;
@@ -16402,7 +16431,7 @@
     user-select: none;
     display: flex;
     padding: 0 ${styles$1.span(2)};
-    flex-wrap: wrap;
+    align-items: center;
 
     ${(props) => {
     if (props.disabled) {
@@ -16416,16 +16445,19 @@
         `;
 }}
 `;
-	const ContainerLeft = He.div `
+	const ValueContainer = He.div `
     width: calc(100% - ${styles$1.span(4)});
     position: relative;
     display: flex;
     align-items: center;
 `;
-	const ContainerRight = He.div `
-    width: ${styles$1.span(4)};
+	const StyledToggleButton = He(ToggleButton) `
+    flex-shrink: 0;
 `;
-	const Label = He.label.withConfig({
+	const StyledClearButton = He(ClearButton) `
+    flex-shrink: 0;
+`;
+	const Label$1 = He.label.withConfig({
 	    shouldForwardProp: (propertyName) => propertyName !== "disabled",
 	}) `
     display: inline-block;
@@ -16433,12 +16465,12 @@
     overflow: hidden;
     white-space: nowrap;
     font-size: 12px;
-    height: ${styles$1.span(3)};
+    height: ${styles$1.span(2)};
     line-height: ${styles$1.span(2)};
-    top: ${styles$1.span(-1.5, -1)};
+    top: ${styles$1.span(-3, 3)};
     left: ${styles$1.span(-0.5)};
     position: absolute;
-    padding: ${styles$1.span(0.5)};
+    padding: 0 ${styles$1.span(0.5)};
     max-width: calc(100% + ${styles$1.span(1)});
     border-radius: ${styles$1.borders.radius[0]};
 
@@ -16454,11 +16486,18 @@
     overflow: hidden;
     white-space: nowrap;
 `;
+	const Placeholder = He.div `
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    color: ${styles$1.colors.grey4};
+`;
 	function Select(props) {
-	    const { disabled = false, label, noOptionsMessage, options, value, onChange, } = props;
+	    const { clearable = false, disabled = false, label, noOptionsMessage, options, placeholder, value, onChange, } = props;
 	    const filterRef = react.exports.useRef(null);
 	    const [filter, setFilter] = react.exports.useState("");
 	    const [showOptions, setShowOptions] = react.exports.useState(false);
+	    const isNullValue = value === null;
 	    react.exports.useEffect(() => {
 	        const handleDocumentClick = () => {
 	            setShowOptions(false);
@@ -16469,7 +16508,12 @@
 	            document.removeEventListener("click", handleDocumentClick);
 	        };
 	    }, []);
-	    const currentValue = react.exports.useMemo(() => options.find((option) => option.value === value), [options, value]);
+	    const currentValue = react.exports.useMemo(() => {
+	        if (value === null) {
+	            return null;
+	        }
+	        return options.find((option) => option.value === value);
+	    }, [options, value]);
 	    if (currentValue === undefined) {
 	        throw new Error(`Unknown value: "${value}"`);
 	    }
@@ -16501,14 +16545,19 @@
 	        }
 	        setShowOptions(true);
 	    };
+	    const handleClear = (event) => {
+	        event.stopPropagation();
+	        // TODO: fix types
+	        onChange(null, null, event);
+	    };
 	    return (React$1.createElement(StyledSelect, null,
 	        React$1.createElement(Container, { disabled: disabled, onClick: handleContainerClick },
-	            React$1.createElement(ContainerLeft, null,
-	                label && React$1.createElement(Label, { disabled: disabled }, label),
-	                React$1.createElement(CurrentValue, null, currentValue.label),
+	            React$1.createElement(ValueContainer, null,
+	                label && React$1.createElement(Label$1, { disabled: disabled }, label),
+	                currentValue ? (React$1.createElement(CurrentValue, null, currentValue.label)) : (React$1.createElement(Placeholder, null, placeholder)),
 	                React$1.createElement(Filter, { ref: filterRef, value: filter, onChange: handleFilterChange, onFocus: handleFilterFocus })),
-	            React$1.createElement(ContainerRight, null,
-	                React$1.createElement(Cursor, { direction: showOptions ? "up" : "down" }))),
+	            clearable && !isNullValue && (React$1.createElement(StyledClearButton, { onClick: handleClear })),
+	            React$1.createElement(StyledToggleButton, { direction: showOptions ? "up" : "down" })),
 	        React$1.createElement(Options, { noOptionsMessage: noOptionsMessage, options: filteredOptions, show: showOptions, onOptionClick: onChange })));
 	}
 
@@ -21359,11 +21408,16 @@ function Select<TValue>(props: SelectProps<TValue>): JSX.Element;
 
 	const StyledCheckbox = He.div `
     display: inline-flex;
+    user-select: none;
+    cursor: pointer;
+`;
+	const Label = He.label `
+    margin-left: ${styles$1.span(0.5)};
 `;
 	const Checkbox = ({ checked, label, name, onChange, }) => {
 	    return (React$1.createElement(StyledCheckbox, null,
 	        React$1.createElement("input", { type: "checkbox", id: name, name: name, checked: checked, onChange: (event) => onChange(event.currentTarget.checked) }),
-	        React$1.createElement("label", { htmlFor: name }, label)));
+	        React$1.createElement(Label, { htmlFor: name }, label)));
 	};
 
 	var lib$1 = {};
@@ -40329,6 +40383,7 @@ const colors = [
 function MyComponent() {
     const [color, setColor] = useState("red");
     const [disabled, setDisabled] = useState(false);
+    const [clearable, setClearable] = useState(false);
 
     return (
         <Row>
@@ -40337,6 +40392,7 @@ function MyComponent() {
                     options={colors}
                     label="Choose color"
                     disabled={disabled}
+                    clearable={clearable}
                     value={color}
                     onChange={setColor}
                 />
@@ -40344,9 +40400,17 @@ function MyComponent() {
             <Col size={4}>
                 <Checkbox
                     name="disabled"
-                    label="Disabled"
+                    label="disabled"
                     value={disabled}
                     onChange={setDisabled}
+                />
+            </Col>
+            <Col size={4}>
+                <Checkbox
+                    name="clearable"
+                    label="clearable"
+                    value={clearable}
+                    onChange={setClearable}
                 />
             </Col>
         </Row>

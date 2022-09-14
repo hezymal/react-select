@@ -1,6 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import { styles } from "styles";
+
 interface Props {
     name: string;
     label: string;
@@ -10,6 +12,12 @@ interface Props {
 
 const StyledCheckbox = styled.div`
     display: inline-flex;
+    user-select: none;
+    cursor: pointer;
+`;
+
+const Label = styled.label`
+    margin-left: ${styles.span(0.5)};
 `;
 
 export const Checkbox: React.FC<Props> = ({
@@ -27,7 +35,7 @@ export const Checkbox: React.FC<Props> = ({
                 checked={checked}
                 onChange={(event) => onChange(event.currentTarget.checked)}
             />
-            <label htmlFor={name}>{label}</label>
+            <Label htmlFor={name}>{label}</Label>
         </StyledCheckbox>
     );
 };

@@ -46,6 +46,7 @@ const colors = [
 function MyComponent() {
     const [color, setColor] = useState("red");
     const [disabled, setDisabled] = useState(false);
+    const [clearable, setClearable] = useState(false);
 
     return (
         <Row>
@@ -54,6 +55,7 @@ function MyComponent() {
                     options={colors}
                     label="Choose color"
                     disabled={disabled}
+                    clearable={clearable}
                     value={color}
                     onChange={setColor}
                 />
@@ -61,9 +63,17 @@ function MyComponent() {
             <Col size={4}>
                 <Checkbox
                     name="disabled"
-                    label="Disabled"
+                    label="disabled"
                     value={disabled}
                     onChange={setDisabled}
+                />
+            </Col>
+            <Col size={4}>
+                <Checkbox
+                    name="clearable"
+                    label="clearable"
+                    value={clearable}
+                    onChange={setClearable}
                 />
             </Col>
         </Row>

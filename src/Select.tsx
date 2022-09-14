@@ -9,19 +9,24 @@ import React, {
 } from "react";
 import styled from "styled-components";
 
-import { Cursor } from "./inners/Cursor";
+import { ClearButton } from "./inners/ClearButton";
 import { Filter } from "./inners/Filter";
 import { Options, ClickOptionHandler } from "./inners/Options";
+import { ToggleButton } from "./inners/ToggleButton";
 import { styles } from "./styles";
 import { OptionType } from "./types";
 
-export interface SelectProps<TValue> {
+export interface SelectProps<TValue, IsClearable extends boolean> {
     options: OptionType<TValue>[];
-    value: TValue;
+    value: IsClearable extends false ? TValue : TValue | null;
+    clearable?: IsClearable;
     disabled?: boolean;
     label?: string;
     noOptionsMessage?: string;
-    onChange: ClickOptionHandler<TValue>;
+    placeholder?: string;
+    onChange: ClickOptionHandler<
+        IsClearable extends false ? TValue : TValue | null
+    >;
 }
 
 interface ContainerProps {
@@ -47,7 +52,7 @@ const Container = styled.div.withConfig<ContainerProps>({
     user-select: none;
     display: flex;
     padding: 0 ${styles.span(2)};
-    flex-wrap: wrap;
+    align-items: center;
 
     ${(props) => {
         if (props.disabled) {
@@ -63,15 +68,19 @@ const Container = styled.div.withConfig<ContainerProps>({
     }}
 `;
 
-const ContainerLeft = styled.div`
+const ValueContainer = styled.div`
     width: calc(100% - ${styles.span(4)});
     position: relative;
     display: flex;
     align-items: center;
 `;
 
-const ContainerRight = styled.div`
-    width: ${styles.span(4)};
+const StyledToggleButton = styled(ToggleButton)`
+    flex-shrink: 0;
+`;
+
+const StyledClearButton = styled(ClearButton)`
+    flex-shrink: 0;
 `;
 
 const Label = styled.label.withConfig<LabelProps>({
@@ -82,12 +91,12 @@ const Label = styled.label.withConfig<LabelProps>({
     overflow: hidden;
     white-space: nowrap;
     font-size: 12px;
-    height: ${styles.span(3)};
+    height: ${styles.span(2)};
     line-height: ${styles.span(2)};
-    top: ${styles.span(-1.5, -1)};
+    top: ${styles.span(-3, 3)};
     left: ${styles.span(-0.5)};
     position: absolute;
-    padding: ${styles.span(0.5)};
+    padding: 0 ${styles.span(0.5)};
     max-width: calc(100% + ${styles.span(1)});
     border-radius: ${styles.borders.radius[0]};
 
@@ -106,12 +115,23 @@ const CurrentValue = styled.div`
     white-space: nowrap;
 `;
 
-export function Select<TValue>(props: SelectProps<TValue>): JSX.Element {
+const Placeholder = styled.div`
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    color: ${styles.colors.grey4};
+`;
+
+export function Select<TValue, IsClearable extends boolean = false>(
+    props: SelectProps<TValue, IsClearable>
+): JSX.Element {
     const {
+        clearable = false,
         disabled = false,
         label,
         noOptionsMessage,
         options,
+        placeholder,
         value,
         onChange,
     } = props;
@@ -119,6 +139,8 @@ export function Select<TValue>(props: SelectProps<TValue>): JSX.Element {
     const filterRef = useRef<HTMLInputElement | null>(null);
     const [filter, setFilter] = useState("");
     const [showOptions, setShowOptions] = useState(false);
+
+    const isNullValue = value === null;
 
     useEffect(() => {
         const handleDocumentClick = () => {
@@ -133,10 +155,13 @@ export function Select<TValue>(props: SelectProps<TValue>): JSX.Element {
         };
     }, []);
 
-    const currentValue = useMemo(
-        () => options.find((option) => option.value === value),
-        [options, value]
-    );
+    const currentValue = useMemo(() => {
+        if (value === null) {
+            return null;
+        }
+
+        return options.find((option) => option.value === value);
+    }, [options, value]);
 
     if (currentValue === undefined) {
         throw new Error(`Unknown value: "${value}"`);
@@ -156,6 +181,7 @@ export function Select<TValue>(props: SelectProps<TValue>): JSX.Element {
         }
 
         event.stopPropagation();
+
         setShowOptions((showOptions) => {
             if (showOptions) {
                 return false;
@@ -180,22 +206,34 @@ export function Select<TValue>(props: SelectProps<TValue>): JSX.Element {
         setShowOptions(true);
     };
 
+    const handleClear: MouseEventHandler<HTMLButtonElement> = (event) => {
+        event.stopPropagation();
+
+        // TODO: fix types
+        onChange(null as any, null as any, event as any);
+    };
+
     return (
         <StyledSelect>
             <Container disabled={disabled} onClick={handleContainerClick}>
-                <ContainerLeft>
+                <ValueContainer>
                     {label && <Label disabled={disabled}>{label}</Label>}
-                    <CurrentValue>{currentValue.label}</CurrentValue>
+                    {currentValue ? (
+                        <CurrentValue>{currentValue.label}</CurrentValue>
+                    ) : (
+                        <Placeholder>{placeholder}</Placeholder>
+                    )}
                     <Filter
                         ref={filterRef}
                         value={filter}
                         onChange={handleFilterChange}
                         onFocus={handleFilterFocus}
                     />
-                </ContainerLeft>
-                <ContainerRight>
-                    <Cursor direction={showOptions ? "up" : "down"} />
-                </ContainerRight>
+                </ValueContainer>
+                {clearable && !isNullValue && (
+                    <StyledClearButton onClick={handleClear} />
+                )}
+                <StyledToggleButton direction={showOptions ? "up" : "down"} />
             </Container>
             <Options
                 noOptionsMessage={noOptionsMessage}
