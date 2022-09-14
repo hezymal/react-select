@@ -40370,7 +40370,7 @@ const MyComponent = () => {
     const [value, setValue] = useState("blue");
 
     return <Select options={options} value={value} onChange={setValue} />;
-}
+};
 `.trim();
 	const singleCodeScope = { Col, Checkbox, Fragment: react.exports.Fragment, Row, Select, useState: react.exports.useState };
 	const singleCode = `
@@ -40397,7 +40397,7 @@ function MyComponent() {
                     onChange={setColor}
                 />
             </Col>
-            <Col size={4}>
+            <Col size={3}>
                 <Checkbox
                     name="disabled"
                     label="disabled"
@@ -40405,7 +40405,7 @@ function MyComponent() {
                     onChange={setDisabled}
                 />
             </Col>
-            <Col size={4}>
+            <Col size={3}>
                 <Checkbox
                     name="clearable"
                     label="clearable"
