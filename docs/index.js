@@ -9374,7 +9374,7 @@
 
 	var _LONG_STYLE, _PREFIXES, _PREFIXES_FOR_FAMILY;
 
-	var styles$2 = namespace.styles,
+	var styles$3 = namespace.styles,
 	    shims = namespace.shims;
 	var LONG_STYLE = (_LONG_STYLE = {}, _defineProperty$3(_LONG_STYLE, FAMILY_CLASSIC, Object.values(PREFIX_TO_LONG_STYLE[FAMILY_CLASSIC])), _defineProperty$3(_LONG_STYLE, FAMILY_SHARP, Object.values(PREFIX_TO_LONG_STYLE[FAMILY_SHARP])), _LONG_STYLE);
 	var _defaultUsablePrefix = null;
@@ -9403,7 +9403,7 @@
 
 	var build = function build() {
 	  var lookup = function lookup(reducer) {
-	    return reduce(styles$2, function (o, style, prefix) {
+	    return reduce(styles$3, function (o, style, prefix) {
 	      o[prefix] = reduce(style, reducer, {});
 	      return o;
 	    }, {});
@@ -9449,7 +9449,7 @@
 	  }); // If we have a Kit, we can't determine if regular is available since we
 	  // could be auto-fetching it. We'll have to assume that it is available.
 
-	  var hasRegular = 'far' in styles$2 || config$1.autoFetchSvg;
+	  var hasRegular = 'far' in styles$3 || config$1.autoFetchSvg;
 	  var shimLookups = reduce(shims, function (acc, shim) {
 	    var maybeNameMaybeUnicode = shim[0];
 	    var prefix = shim[1];
@@ -9572,7 +9572,7 @@
 	  var canonical = values.reduce(function (acc, cls) {
 	    var iconName = getIconName(config$1.cssPrefix, cls);
 
-	    if (styles$2[cls]) {
+	    if (styles$3[cls]) {
 	      cls = LONG_STYLE[family].includes(cls) ? LONG_STYLE_TO_PREFIX[family][cls] : cls;
 	      givenPrefix = cls;
 	      acc.prefix = cls;
@@ -9598,7 +9598,7 @@
 	      acc.iconName = shim.iconName || aliasIconName || acc.iconName;
 	      acc.prefix = shim.prefix || acc.prefix;
 
-	      if (acc.prefix === 'far' && !styles$2['far'] && styles$2['fas'] && !config$1.autoFetchSvg) {
+	      if (acc.prefix === 'far' && !styles$3['far'] && styles$3['fas'] && !config$1.autoFetchSvg) {
 	        // Allow a fallback from the regular style to solid if regular is not available
 	        // but only if we aren't auto-fetching SVGs
 	        acc.prefix = 'fas';
@@ -9616,7 +9616,7 @@
 	    canonical.prefix = 'fad';
 	  }
 
-	  if (!canonical.prefix && family === FAMILY_SHARP && (styles$2['fass'] || config$1.autoFetchSvg)) {
+	  if (!canonical.prefix && family === FAMILY_SHARP && (styles$3['fass'] || config$1.autoFetchSvg)) {
 	    canonical.prefix = 'fass';
 	    canonical.iconName = byAlias(canonical.prefix, canonical.iconName) || canonical.iconName;
 	  }
@@ -14913,24 +14913,18 @@
 
 	"undefined" != typeof navigator && "ReactNative" === navigator.product && console.warn("It looks like you've imported 'styled-components' on React Native.\nPerhaps you're looking to import 'styled-components/native'?\nRead more about this at https://www.styled-components.com/docs/basics#react-native"), "undefined" != typeof window && (window["__styled-components-init__"] = window["__styled-components-init__"] || 0, 1 === window["__styled-components-init__"] && console.warn("It looks like there are several instances of 'styled-components' initialized in this application. This may cause dynamic styles to not render properly, errors during the rehydration process, a missing theme prop, and makes your application bigger without good reason.\n\nSee https://s-c.sh/2BAXzed for more info."), window["__styled-components-init__"] += 1);
 
-	const borders = {
+	const borders$1 = {
 	    radius: ["5px"],
 	};
-	const colors = {
-	    grey1: "#eeeeee",
-	    grey2: "#f3f3f3",
-	    grey3: "#fafafa",
-	    grey4: "#949494",
-	    blue1: "#8383f3",
-	    violet1: "#8383f3",
-	    violet2: "#6161cb",
+	const colors$1 = {
+	    violet: ["#8383f3", "#6161cb"],
 	};
-	const span = (points, offsetInPixels = 0, pointsInPixels = 8) => points * pointsInPixels + offsetInPixels + "px";
-	const styles$1 = { borders, colors, span };
+	const span$1 = (points, offsetInPixels = 0, pointsInPixels = 8) => points * pointsInPixels + offsetInPixels + "px";
+	const styles$2 = { borders: borders$1, colors: colors$1, span: span$1 };
 
 	const Container$1 = He.div `
     margin: 0 auto;
-    width: ${styles$1.span(138)};
+    width: ${styles$2.span(138)};
 `;
 	const Row = He.div `
     display: flex;
@@ -16276,6 +16270,15 @@
 	    return translate;
 	};
 
+	const borders = {
+	    radius: ["5px"],
+	};
+	const colors = {
+	    grey: ["#eeeeee", "#f3f3f3", "#fafafa", "#949494"],
+	};
+	const span = (points, offsetInPixels = 0, pointsInPixels = 8) => points * pointsInPixels + offsetInPixels + "px";
+	const styles$1 = { borders, colors, span };
+
 	const StyledButton = He.button `
     display: block;
     height: ${styles$1.span(4)};
@@ -16341,7 +16344,7 @@
 	const StyledOptions = He.ul.withConfig({
 	    shouldForwardProp: (propertyName) => propertyName !== "show",
 	}) `
-    border: 1px solid ${styles$1.colors.grey1};
+    border: 1px solid ${styles$1.colors.grey[0]};
     border-radius: ${styles$1.borders.radius[0]};
     background-color: white;
     list-style: none;
@@ -16369,7 +16372,7 @@
     white-space: nowrap;
 
     &:hover {
-        background-color: ${styles$1.colors.grey2};
+        background-color: ${styles$1.colors.grey[1]};
     }
 `;
 	const NoOptionMessage = He.li `
@@ -16427,7 +16430,7 @@
 	const Container = He.div.withConfig({
 	    shouldForwardProp: (propertyName) => propertyName !== "disabled",
 	}) `
-    border: 1px solid ${styles$1.colors.grey1};
+    border: 1px solid ${styles$1.colors.grey[0]};
     border-radius: ${styles$1.borders.radius[0]};
     height: ${styles$1.span(6)};
     user-select: none;
@@ -16438,7 +16441,7 @@
     ${(props) => {
     if (props.disabled) {
         return `
-                background-color: ${styles$1.colors.grey3};
+                background-color: ${styles$1.colors.grey[2]};
             `;
     }
     return `
@@ -16478,7 +16481,7 @@
 
     ${(props) => {
     if (props.disabled) {
-        return `background-color: ${styles$1.colors.grey3};`;
+        return `background-color: ${styles$1.colors.grey[2]};`;
     }
     return "background-color: white;";
 }}
@@ -16492,7 +16495,7 @@
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    color: ${styles$1.colors.grey4};
+    color: ${styles$1.colors.grey[3]};
 `;
 	function Select(props) {
 	    const { clearable = false, disabled = false, label, multiple = false, noOptionsMessage, options, placeholder, value, onChange, } = props;
@@ -16629,7 +16632,7 @@
 	];
 	const StyledHeader = He.div `
     display: flex;
-    padding: ${styles$1.span(1)} 0;
+    padding: ${styles$2.span(1)} 0;
     justify-content: space-between;
 `;
 	const Logo = He.a `
@@ -16639,16 +16642,16 @@
     text-decoration: none;
     font-size: 16px;
     font-weight: 600;
-    padding: 0 ${styles$1.span(2)};
-    height: ${styles$1.span(6)};
-    line-height: ${styles$1.span(6)};
+    padding: 0 ${styles$2.span(2)};
+    height: ${styles$2.span(6)};
+    line-height: ${styles$2.span(6)};
 `;
 	const RightPart$1 = He.div `
     align-items: center;
     display: flex;
 `;
 	const GitHubLink = He.a `
-    margin-right: ${styles$1.span(4)};
+    margin-right: ${styles$2.span(4)};
     color: black;
     font-size: 32px;
 `;
@@ -16674,15 +16677,15 @@
     list-style-type: none;
 `;
 	const Item = He.li `
-    margin: 0 0 ${styles$1.span(0.5)} 0;
+    margin: 0 0 ${styles$2.span(0.5)} 0;
 `;
 	const Link$1 = He(NavLink) `
     color: black;
     display: inline-block;
     text-decoration: none;
-    padding: ${styles$1.span(1)} ${styles$1.span(4)} ${styles$1.span(1)}
-        ${styles$1.span(2)};
-    border-radius: ${styles$1.borders.radius[0]};
+    padding: ${styles$2.span(1)} ${styles$2.span(4)} ${styles$2.span(1)}
+        ${styles$2.span(2)};
+    border-radius: ${styles$2.borders.radius[0]};
 
     &.active,
     &:hover {
@@ -16704,14 +16707,14 @@
 
 	const HeadPart = He.div `
     border-bottom: 1px solid #eeeeee;
-    height: ${styles$1.span(8, +1)};
+    height: ${styles$2.span(8, +1)};
 `;
 	const LeftPart = He.div `
-    padding: ${styles$1.span(4)} ${styles$1.span(4)} ${styles$1.span(4)} 0;
+    padding: ${styles$2.span(4)} ${styles$2.span(4)} ${styles$2.span(4)} 0;
 `;
 	const RightPart = He.div `
-    height: calc(100vh - ${styles$1.span(8, +1)});
-    padding: ${styles$1.span(4)} ${styles$1.span(4)} ${styles$1.span(4)} 0;
+    height: calc(100vh - ${styles$2.span(8, +1)});
+    padding: ${styles$2.span(4)} ${styles$2.span(4)} ${styles$2.span(4)} 0;
     overflow-y: auto;
 `;
 	const Layout = ({ language, onLanguageChange }) => {
@@ -16728,8 +16731,8 @@
 	};
 
 	const PageTitle = He.h1 `
-    margin: 0 0 ${styles$1.span(4)};
-    line-height: ${styles$1.span(4)};
+    margin: 0 0 ${styles$2.span(4)};
+    line-height: ${styles$2.span(4)};
 `;
 
 	const AdvancedUsagePage = () => {
@@ -16740,10 +16743,10 @@
 	};
 
 	const Section = He.div `
-    margin: 0 0 ${styles$1.span(4)};
+    margin: 0 0 ${styles$2.span(4)};
 `;
 	const SectionTitle = He.h2 `
-    margin: 0 0 ${styles$1.span(3)};
+    margin: 0 0 ${styles$2.span(3)};
 `;
 
 	/**
@@ -21507,7 +21510,7 @@ const MyComponent = () => {
     cursor: pointer;
 `;
 	const Label = He.label `
-    margin-left: ${styles$1.span(0.5)};
+    margin-left: ${styles$2.span(0.5)};
 `;
 	const Checkbox = ({ checked, label, name, onChange, }) => {
 	    return (React$1.createElement(StyledCheckbox, null,
@@ -40408,7 +40411,7 @@ const MyComponent = () => {
 	const StyledLivePreview = He(LivePreview) `
     position: relative;
     z-index: 2;
-    margin: 0 0 ${styles$1.span(2)} 0;
+    margin: 0 0 ${styles$2.span(2)} 0;
 `;
 	const StyledLiveEditor = He(LiveEditor) `
     position: relative;
@@ -40422,7 +40425,7 @@ const MyComponent = () => {
 `;
 	const StyledLiveError = He(LiveError) `
     margin: 0 0 5px 0;
-    padding: ${styles$1.span(1)} ${styles$1.span(2)};
+    padding: ${styles$2.span(1)} ${styles$2.span(2)};
     position: relative;
     z-index: 1;
     line-height: 1.2em;
@@ -40437,11 +40440,11 @@ const MyComponent = () => {
 	};
 
 	const Paragraph = He.div `
-    margin: 0 0 ${styles$1.span(2)};
+    margin: 0 0 ${styles$2.span(2)};
 `;
 	He.h3 `
-    margin: 0 0 ${styles$1.span(2)};
-    line-height: ${styles$1.span(2)};
+    margin: 0 0 ${styles$2.span(2)};
+    line-height: ${styles$2.span(2)};
 `;
 
 	const codeScope$2 = { Col, Checkbox, Fragment: react.exports.Fragment, Row, Select, useState: react.exports.useState };
@@ -40566,12 +40569,12 @@ render(<MyComponent />);
 	};
 
 	const Link = He(Link$2) `
-    color: ${styles$1.colors.violet1};
+    color: ${styles$2.colors.violet[0]};
     text-decoration: none;
 `;
 
 	const OuterLink = He.a `
-    color: ${styles$1.colors.violet1};
+    color: ${styles$2.colors.violet[0]};
     text-decoration: none;
 `;
 
@@ -40633,7 +40636,7 @@ render(<MyComponent />);
     body {
         font-family: 'Roboto Mono', monospace;
         font-size: 14px;
-        line-height: ${styles$1.span(3)};
+        line-height: ${styles$2.span(3)};
     }
 `;
 

@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { styles } from "styles";
+import { styles } from "docs/styles";
 
 export const Paragraph = styled.div`
     margin: 0 0 ${styles.span(2)};

@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom";
 import styled from "styled-components";
 
 import { Language } from "docs/i18n";
-import { styles } from "styles";
+import { styles } from "docs/styles";
 
 import { Container, Row, Col } from "./Grid";
 import { Header } from "./Header";

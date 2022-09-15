@@ -27,7 +27,7 @@ const NO_OPTIONS_MESSAGE = "No options";
 const StyledOptions = styled.ul.withConfig<StyledOptionsProps>({
     shouldForwardProp: (propertyName) => propertyName !== "show",
 })`
-    border: 1px solid ${styles.colors.grey1};
+    border: 1px solid ${styles.colors.grey[0]};
     border-radius: ${styles.borders.radius[0]};
     background-color: white;
     list-style: none;
@@ -57,7 +57,7 @@ const StyledOption = styled.li`
     white-space: nowrap;
 
     &:hover {
-        background-color: ${styles.colors.grey2};
+        background-color: ${styles.colors.grey[1]};
     }
 `;
 

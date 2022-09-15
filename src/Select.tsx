@@ -66,7 +66,7 @@ const StyledSelect = styled.div`
 const Container = styled.div.withConfig<ContainerProps>({
     shouldForwardProp: (propertyName) => propertyName !== "disabled",
 })`
-    border: 1px solid ${styles.colors.grey1};
+    border: 1px solid ${styles.colors.grey[0]};
     border-radius: ${styles.borders.radius[0]};
     height: ${styles.span(6)};
     user-select: none;
@@ -77,7 +77,7 @@ const Container = styled.div.withConfig<ContainerProps>({
     ${(props) => {
         if (props.disabled) {
             return `
-                background-color: ${styles.colors.grey3};
+                background-color: ${styles.colors.grey[2]};
             `;
         }
 
@@ -122,7 +122,7 @@ const Label = styled.label.withConfig<LabelProps>({
 
     ${(props) => {
         if (props.disabled) {
-            return `background-color: ${styles.colors.grey3};`;
+            return `background-color: ${styles.colors.grey[2]};`;
         }
 
         return "background-color: white;";
@@ -139,7 +139,7 @@ const Placeholder = styled.div`
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    color: ${styles.colors.grey4};
+    color: ${styles.colors.grey[3]};
 `;
 
 export function Select<

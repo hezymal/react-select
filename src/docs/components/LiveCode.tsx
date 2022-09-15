@@ -4,7 +4,7 @@ import React, { FC } from "react";
 import { LiveProvider, LiveEditor, LiveError, LivePreview } from "react-live";
 import styled from "styled-components";
 
-import { styles } from "styles";
+import { styles } from "docs/styles";
 
 interface Props {
     code: string;

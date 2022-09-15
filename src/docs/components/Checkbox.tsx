@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { styles } from "styles";
+import { styles } from "docs/styles";
 
 interface Props {
     name: string;

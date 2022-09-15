@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import { APP_TITLE, REPOSITORY_URL } from "docs/constants";
 import { Language } from "docs/i18n";
-import { styles } from "styles";
+import { styles } from "docs/styles";
 import { Select, OptionType } from "index";
 
 interface Props {

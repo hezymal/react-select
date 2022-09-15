@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import { useTranslation } from "docs/i18n";
 import { navigation } from "docs/navigation";
-import { styles } from "styles";
+import { styles } from "docs/styles";
 
 const List = styled.ul`
     margin: 0;
