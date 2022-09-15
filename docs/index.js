@@ -16335,6 +16335,8 @@
 	        React$1.createElement("input", { ref: ref, value: value, onChange: onChange, onInput: handleInput, onFocus: onFocus, onClick: handleClick })));
 	});
 
+	const castValueToReactKey = (value) => value + "";
+
 	const NO_OPTIONS_MESSAGE = "No options";
 	const StyledOptions = He.ul.withConfig({
 	    shouldForwardProp: (propertyName) => propertyName !== "show",
@@ -16382,7 +16384,7 @@
 	        event.preventDefault();
 	        event.stopPropagation();
 	    };
-	    return (React$1.createElement(StyledOptions, { show: show }, options.length > 0 ? (options.map((option) => (React$1.createElement(StyledOption, { key: option.value + "", onClick: (event) => onOptionClick(option.value, option, event) }, option.label)))) : (React$1.createElement(NoOptionMessage, { onClick: handleNoOptionMessageClick }, noOptionsMessage || NO_OPTIONS_MESSAGE))));
+	    return (React$1.createElement(StyledOptions, { show: show }, options.length > 0 ? (options.map((option) => (React$1.createElement(StyledOption, { key: castValueToReactKey(option.value), onClick: (event) => onOptionClick(option.value, option, event) }, option.label)))) : (React$1.createElement(NoOptionMessage, { onClick: handleNoOptionMessageClick }, noOptionsMessage || NO_OPTIONS_MESSAGE))));
 	}
 
 	const StyledToggleButton$1 = He.button `
@@ -16445,7 +16447,7 @@
         `;
 }}
 `;
-	const ValueContainer = He.div `
+	const ValueLine = He.div `
     width: calc(100% - ${styles$1.span(4)});
     position: relative;
     display: flex;
@@ -16493,7 +16495,7 @@
     color: ${styles$1.colors.grey4};
 `;
 	function Select(props) {
-	    const { clearable = false, disabled = false, label, noOptionsMessage, options, placeholder, value, onChange, } = props;
+	    const { clearable = false, disabled = false, label, multiple = false, noOptionsMessage, options, placeholder, value, onChange, } = props;
 	    const filterRef = react.exports.useRef(null);
 	    const [filter, setFilter] = react.exports.useState("");
 	    const [showOptions, setShowOptions] = react.exports.useState(false);
@@ -16508,13 +16510,20 @@
 	            document.removeEventListener("click", handleDocumentClick);
 	        };
 	    }, []);
-	    const currentValue = react.exports.useMemo(() => {
+	    const currentOption = react.exports.useMemo(() => {
 	        if (value === null) {
 	            return null;
 	        }
-	        return options.find((option) => option.value === value);
+	        if (!multiple) {
+	            return options.find((option) => option.value === value);
+	        }
+	        return options.filter((option) => {
+	            // TODO: remove any type
+	            const values = value;
+	            return values.find((value) => option.value === value);
+	        });
 	    }, [options, value]);
-	    if (currentValue === undefined) {
+	    if (currentOption === undefined) {
 	        throw new Error(`Unknown value: "${value}"`);
 	    }
 	    const filteredOptions = react.exports.useMemo(() => {
@@ -16546,19 +16555,72 @@
 	        setShowOptions(true);
 	    };
 	    const handleClear = (event) => {
+	        // TODO: remove any types
 	        event.stopPropagation();
-	        // TODO: fix types
-	        onChange(null, null, event);
+	        if (multiple) {
+	            onChange([], null, event);
+	        }
+	        else {
+	            onChange(null, null, event);
+	        }
+	    };
+	    const handleOptionClick = (clickedValue, option, event) => {
+	        // TODO: remove any types
+	        if (multiple) {
+	            const values = value;
+	            const newValues = [];
+	            let exists = false;
+	            for (let index = 0; index <= values.length; index++) {
+	                if (values[index] === clickedValue) {
+	                    exists = true;
+	                }
+	                else {
+	                    newValues.push(values[index]);
+	                }
+	            }
+	            if (!exists) {
+	                newValues.push(clickedValue);
+	            }
+	            onChange(newValues, option, event);
+	        }
+	        else {
+	            onChange(clickedValue, option, event);
+	        }
+	    };
+	    const renderLabel = () => {
+	        if (!label) {
+	            return null;
+	        }
+	        return React$1.createElement(Label$1, { disabled: disabled }, label);
+	    };
+	    const renderCurrentValue = () => {
+	        if (!currentOption) {
+	            return React$1.createElement(Placeholder, null, placeholder);
+	        }
+	        if (!Array.isArray(currentOption)) {
+	            return React$1.createElement(CurrentValue, null, currentOption.label);
+	        }
+	        if (currentOption.length === 0) {
+	            return React$1.createElement(Placeholder, null, placeholder);
+	        }
+	        const valuesString = currentOption.reduce((totalString, option) => totalString ? totalString + ", " + option.label : option.label, "");
+	        return React$1.createElement(CurrentValue, { title: valuesString }, valuesString);
+	    };
+	    const renderClearButton = () => {
+	        if (!clearable || isNullValue) {
+	            return null;
+	        }
+	        return React$1.createElement(StyledClearButton, { onClick: handleClear });
 	    };
 	    return (React$1.createElement(StyledSelect, null,
 	        React$1.createElement(Container, { disabled: disabled, onClick: handleContainerClick },
-	            React$1.createElement(ValueContainer, null,
-	                label && React$1.createElement(Label$1, { disabled: disabled }, label),
-	                currentValue ? (React$1.createElement(CurrentValue, null, currentValue.label)) : (React$1.createElement(Placeholder, null, placeholder)),
+	            React$1.createElement(ValueLine, null,
+	                renderLabel(),
+	                renderCurrentValue(),
 	                React$1.createElement(Filter, { ref: filterRef, value: filter, onChange: handleFilterChange, onFocus: handleFilterFocus })),
-	            clearable && !isNullValue && (React$1.createElement(StyledClearButton, { onClick: handleClear })),
+	            renderClearButton(),
 	            React$1.createElement(StyledToggleButton, { direction: showOptions ? "up" : "down" })),
-	        React$1.createElement(Options, { noOptionsMessage: noOptionsMessage, options: filteredOptions, show: showOptions, onOptionClick: onChange })));
+	        React$1.createElement(Options, { noOptionsMessage: noOptionsMessage, options: filteredOptions, show: showOptions, onOptionClick: handleOptionClick })));
 	}
 
 	const languagesOptions = [
@@ -21350,7 +21412,7 @@
 `;
 	const StaticCode = ({ language, code }) => (React$1.createElement(Highlight, Object.assign({}, defaultProps, { theme: theme$1, code: code, language: language }), ({ className, style, tokens, getLineProps, getTokenProps }) => (React$1.createElement(Pre, { className: className, style: style }, tokens.map((line, i) => (React$1.createElement("div", Object.assign({}, getLineProps({ line, key: i })), line.map((token, key) => (React$1.createElement("span", Object.assign({}, getTokenProps({ token, key }))))))))))));
 
-	const singleCode$1 = `
+	const singleCode = `
 function Select<TValue>(props: SelectProps<TValue>): JSX.Element;
     
     // value type
@@ -21403,7 +21465,40 @@ function Select<TValue>(props: SelectProps<TValue>): JSX.Element;
 	        React$1.createElement(PageTitle, null, t `ApiPage:Title`),
 	        React$1.createElement(Section, null,
 	            React$1.createElement(SectionTitle, null, "\u041A\u043E\u043C\u043F\u043E\u043D\u0435\u043D\u0442 Select"),
-	            React$1.createElement(StaticCode, { language: "typescript", code: singleCode$1 }))));
+	            React$1.createElement(StaticCode, { language: "typescript", code: singleCode }))));
+	};
+
+	const installationCode = `
+# NPM
+npm i @hezymal/react-select --save
+
+# Yarn
+yarn add @hezymal/react-select
+`.trim();
+	const exampleCode = `
+import React from "react";
+import Select from "@hezymal/react-select";
+
+const options = [
+    { label: "Red", value: "red" },
+    { label: "Green", value: "green" },
+    { label: "Blue", value: "blue" },
+];
+
+const MyComponent = () => {
+    const [value, setValue] = useState("blue");
+
+    return <Select options={options} value={value} onChange={setValue} />;
+};
+`.trim();
+	const InstallationSection = () => {
+	    const t = useTranslation();
+	    return (React$1.createElement(Section, null,
+	        React$1.createElement(SectionTitle, null,
+	            t `GettingStartedPage:Title:1`,
+	            " \u0438 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u043D\u0438\u0435"),
+	        React$1.createElement(StaticCode, { language: "bash", code: installationCode }),
+	        React$1.createElement(StaticCode, { language: "javascript", code: exampleCode })));
 	};
 
 	const StyledCheckbox = He.div `
@@ -40349,17 +40444,8 @@ function Select<TValue>(props: SelectProps<TValue>): JSX.Element;
     line-height: ${styles$1.span(2)};
 `;
 
-	const installationCode = `
-# NPM
-npm i @hezymal/react-select --save
-
-# Yarn
-yarn add @hezymal/react-select
-`.trim();
-	const exampleCode = `
-import React from "react";
-import Select from "@hezymal/react-select";
-
+	const codeScope$2 = { Col, Checkbox, Fragment: react.exports.Fragment, Row, Select, useState: react.exports.useState };
+	const code$2 = `
 const options = [
     { label: "Red", value: "red" },
     { label: "Green", value: "green" },
@@ -40367,20 +40453,63 @@ const options = [
 ];
 
 const MyComponent = () => {
-    const [value, setValue] = useState("blue");
+    const [colors, setColors] = useState(["red", "blue"]);
+    const [disabled, setDisabled] = useState(false);
+    const [clearable, setClearable] = useState(false);
 
-    return <Select options={options} value={value} onChange={setValue} />;
+    return (
+        <Row>
+            <Col size={16}>
+                <Select
+                    options={options}
+                    label="Choose colors"
+                    placeholder="No selected"
+                    disabled={disabled}
+                    clearable={clearable}
+                    multiple
+                    value={colors}
+                    onChange={setColors}
+                />
+            </Col>
+            <Col size={3}>
+                <Checkbox
+                    name="multi-disabled"
+                    label="disabled"
+                    value={disabled}
+                    onChange={setDisabled}
+                />
+            </Col>
+            <Col size={3}>
+                <Checkbox
+                    name="multi-clearable"
+                    label="clearable"
+                    value={clearable}
+                    onChange={setClearable}
+                />
+            </Col>
+        </Row>
+    );
 };
+
+render(<MyComponent />);
 `.trim();
-	const singleCodeScope = { Col, Checkbox, Fragment: react.exports.Fragment, Row, Select, useState: react.exports.useState };
-	const singleCode = `
-const colors = [
+	const MultipleValuesSection = () => {
+	    useTranslation();
+	    return (React$1.createElement(Section, null,
+	        React$1.createElement(SectionTitle, null, "\u0421 \u043C\u043D\u043E\u0436\u0435\u0441\u0442\u0432\u043E\u043C \u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0439"),
+	        React$1.createElement(Paragraph, null, "\u041F\u0440\u0438\u043C\u0435\u0440 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u043D\u0438\u044F \u0441 \u0432\u044B\u0431\u043E\u0440\u043A\u043E\u0439 \u043C\u043D\u043E\u0436\u0435\u0441\u0442\u0432\u0430 \u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0439:"),
+	        React$1.createElement(LiveCode, { code: code$2, scope: codeScope$2, noInline: true })));
+	};
+
+	const codeScope$1 = { Col, Checkbox, Fragment: react.exports.Fragment, Row, Select, useState: react.exports.useState };
+	const code$1 = `
+const options = [
     { label: "Red", value: "red" },
     { label: "Green", value: "green" },
     { label: "Blue", value: "blue" },
 ];
 
-function MyComponent() {
+const MyComponent = () => {
     const [color, setColor] = useState("red");
     const [disabled, setDisabled] = useState(false);
     const [clearable, setClearable] = useState(false);
@@ -40389,7 +40518,7 @@ function MyComponent() {
         <Row>
             <Col size={16}>
                 <Select
-                    options={colors}
+                    options={options}
                     label="Choose color"
                     disabled={disabled}
                     clearable={clearable}
@@ -40415,24 +40544,25 @@ function MyComponent() {
             </Col>
         </Row>
     );
-}
+};
 
 render(<MyComponent />);
 `.trim();
+	const OneValueSection = () => {
+	    useTranslation();
+	    return (React$1.createElement(Section, null,
+	        React$1.createElement(SectionTitle, null, "\u0421 \u043E\u0434\u043D\u0438\u043C \u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0435\u043C"),
+	        React$1.createElement(Paragraph, null, "\u041F\u0440\u0438\u043C\u0435\u0440 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u043D\u0438\u044F \u0441 \u0432\u044B\u0431\u043E\u0440\u043A\u043E\u0439 \u043E\u0434\u043D\u043E\u0433\u043E \u0437\u043D\u0430\u0447\u0435\u043D\u0438\u044F:"),
+	        React$1.createElement(LiveCode, { code: code$1, scope: codeScope$1, noInline: true })));
+	};
+
 	const GettingStartedPage = () => {
 	    const t = useTranslation();
 	    return (React$1.createElement(react.exports.Fragment, null,
 	        React$1.createElement(PageTitle, null, t `GettingStartedPage:Title`),
-	        React$1.createElement(Section, null,
-	            React$1.createElement(SectionTitle, null,
-	                t `GettingStartedPage:Title:1`,
-	                " \u0438 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u043D\u0438\u0435"),
-	            React$1.createElement(StaticCode, { language: "bash", code: installationCode }),
-	            React$1.createElement(StaticCode, { language: "javascript", code: exampleCode })),
-	        React$1.createElement(Section, null,
-	            React$1.createElement(SectionTitle, null, "\u0421 \u043E\u0434\u043D\u0438\u043C \u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0435\u043C"),
-	            React$1.createElement(Paragraph, null, "\u041F\u0440\u0438\u043C\u0435\u0440 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u043D\u0438\u044F \u0441 \u0432\u044B\u0431\u043E\u0440\u043A\u043E\u0439 \u043E\u0434\u043D\u043E\u0433\u043E \u0437\u043D\u0430\u0447\u0435\u043D\u0438\u044F:"),
-	            React$1.createElement(LiveCode, { code: singleCode, scope: singleCodeScope, noInline: true }))));
+	        React$1.createElement(InstallationSection, null),
+	        React$1.createElement(OneValueSection, null),
+	        React$1.createElement(MultipleValuesSection, null)));
 	};
 
 	const Link = He(Link$2) `

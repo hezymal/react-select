@@ -15,18 +15,38 @@ import { Options, ClickOptionHandler } from "./inners/Options";
 import { ToggleButton } from "./inners/ToggleButton";
 import { styles } from "./styles";
 import { OptionType } from "./types";
+import { castValueToReactKey } from "./utils";
 
-export interface SelectProps<TValue, IsClearable extends boolean> {
-    options: OptionType<TValue>[];
-    value: IsClearable extends false ? TValue : TValue | null;
+type Nullable<
+    TValue,
+    TCondition extends boolean = true
+> = TCondition extends true ? TValue | null : TValue;
+
+type Multiple<
+    TValue,
+    TCondition extends boolean = true
+> = TCondition extends true ? TValue[] : TValue;
+
+type ValueType<
+    TValue,
+    IsClearable extends boolean,
+    IsMultiple extends boolean
+> = Multiple<Nullable<TValue, IsClearable>, IsMultiple>;
+
+export interface SelectProps<
+    TValue,
+    IsClearable extends boolean,
+    IsMultiple extends boolean
+> {
     clearable?: IsClearable;
     disabled?: boolean;
     label?: string;
+    multiple?: IsMultiple;
     noOptionsMessage?: string;
+    options: OptionType<TValue>[];
     placeholder?: string;
-    onChange: ClickOptionHandler<
-        IsClearable extends false ? TValue : TValue | null
-    >;
+    value: ValueType<TValue, IsClearable, IsMultiple>;
+    onChange: ClickOptionHandler<ValueType<TValue, IsClearable, IsMultiple>>;
 }
 
 interface ContainerProps {
@@ -68,7 +88,7 @@ const Container = styled.div.withConfig<ContainerProps>({
     }}
 `;
 
-const ValueContainer = styled.div`
+const ValueLine = styled.div`
     width: calc(100% - ${styles.span(4)});
     position: relative;
     display: flex;
@@ -122,13 +142,16 @@ const Placeholder = styled.div`
     color: ${styles.colors.grey4};
 `;
 
-export function Select<TValue, IsClearable extends boolean = false>(
-    props: SelectProps<TValue, IsClearable>
-): JSX.Element {
+export function Select<
+    TValue,
+    IsClearable extends boolean = false,
+    IsMultiple extends boolean = false
+>(props: SelectProps<TValue, IsClearable, IsMultiple>): JSX.Element {
     const {
         clearable = false,
         disabled = false,
         label,
+        multiple = false,
         noOptionsMessage,
         options,
         placeholder,
@@ -155,15 +178,24 @@ export function Select<TValue, IsClearable extends boolean = false>(
         };
     }, []);
 
-    const currentValue = useMemo(() => {
+    const currentOption = useMemo(() => {
         if (value === null) {
             return null;
         }
 
-        return options.find((option) => option.value === value);
+        if (!multiple) {
+            return options.find((option) => option.value === value);
+        }
+
+        return options.filter((option) => {
+            // TODO: remove any type
+            const values = value as TValue[];
+
+            return values.find((value) => option.value === value);
+        });
     }, [options, value]);
 
-    if (currentValue === undefined) {
+    if (currentOption === undefined) {
         throw new Error(`Unknown value: "${value}"`);
     }
 
@@ -207,39 +239,106 @@ export function Select<TValue, IsClearable extends boolean = false>(
     };
 
     const handleClear: MouseEventHandler<HTMLButtonElement> = (event) => {
+        // TODO: remove any types
+
         event.stopPropagation();
 
-        // TODO: fix types
-        onChange(null as any, null as any, event as any);
+        if (multiple) {
+            onChange([] as any, null as any, event as any);
+        } else {
+            onChange(null as any, null as any, event as any);
+        }
+    };
+
+    const handleOptionClick: ClickOptionHandler<TValue> = (
+        clickedValue,
+        option,
+        event
+    ) => {
+        // TODO: remove any types
+
+        if (multiple) {
+            const values = value as TValue[];
+            const newValues: TValue[] = [];
+
+            let exists = false;
+            for (let index = 0; index <= values.length; index++) {
+                if (values[index] === clickedValue) {
+                    exists = true;
+                } else {
+                    newValues.push(values[index]);
+                }
+            }
+
+            if (!exists) {
+                newValues.push(clickedValue);
+            }
+
+            onChange(newValues as any, option as any, event);
+        } else {
+            onChange(clickedValue as any, option as any, event);
+        }
+    };
+
+    const renderLabel = () => {
+        if (!label) {
+            return null;
+        }
+
+        return <Label disabled={disabled}>{label}</Label>;
+    };
+
+    const renderCurrentValue = () => {
+        if (!currentOption) {
+            return <Placeholder>{placeholder}</Placeholder>;
+        }
+
+        if (!Array.isArray(currentOption)) {
+            return <CurrentValue>{currentOption.label}</CurrentValue>;
+        }
+
+        if (currentOption.length === 0) {
+            return <Placeholder>{placeholder}</Placeholder>;
+        }
+
+        const valuesString = currentOption.reduce(
+            (totalString, option) =>
+                totalString ? totalString + ", " + option.label : option.label,
+            ""
+        );
+
+        return <CurrentValue title={valuesString}>{valuesString}</CurrentValue>;
+    };
+
+    const renderClearButton = () => {
+        if (!clearable || isNullValue) {
+            return null;
+        }
+
+        return <StyledClearButton onClick={handleClear} />;
     };
 
     return (
         <StyledSelect>
             <Container disabled={disabled} onClick={handleContainerClick}>
-                <ValueContainer>
-                    {label && <Label disabled={disabled}>{label}</Label>}
-                    {currentValue ? (
-                        <CurrentValue>{currentValue.label}</CurrentValue>
-                    ) : (
-                        <Placeholder>{placeholder}</Placeholder>
-                    )}
+                <ValueLine>
+                    {renderLabel()}
+                    {renderCurrentValue()}
                     <Filter
                         ref={filterRef}
                         value={filter}
                         onChange={handleFilterChange}
                         onFocus={handleFilterFocus}
                     />
-                </ValueContainer>
-                {clearable && !isNullValue && (
-                    <StyledClearButton onClick={handleClear} />
-                )}
+                </ValueLine>
+                {renderClearButton()}
                 <StyledToggleButton direction={showOptions ? "up" : "down"} />
             </Container>
-            <Options
+            <Options<TValue>
                 noOptionsMessage={noOptionsMessage}
                 options={filteredOptions}
                 show={showOptions}
-                onOptionClick={onChange}
+                onOptionClick={handleOptionClick}
             />
         </StyledSelect>
     );

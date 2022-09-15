@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import { styles } from "../styles";
 import { OptionType } from "../types";
+import { castValueToReactKey } from "../utils";
 
 export type ClickOptionHandler<TValue> = (
     value: TValue,
@@ -82,7 +83,7 @@ export function Options<TValue>(props: Props<TValue>): JSX.Element {
             {options.length > 0 ? (
                 options.map((option) => (
                     <StyledOption
-                        key={option.value + ""}
+                        key={castValueToReactKey(option.value)}
                         onClick={(event) =>
                             onOptionClick(option.value, option, event)
                         }
